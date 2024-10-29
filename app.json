@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "LitokShop",
+    "slug": "litokshop",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.heralb.litokshop"
+    },
+    "web": {
+      "favicon": "./assets/icon.png"
+    },
+    "notification": {
+      "icon": "./assets/icon.png",
+      "color": "#000000",
+      "androidMode": "default",
+      "androidCollapsedTitle": "LitokShop"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d104e808-5949-4c53-9499-b64088cd655c"
+      }
+    }
+  }
+}
