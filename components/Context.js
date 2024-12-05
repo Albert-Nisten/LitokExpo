@@ -1,10 +1,10 @@
 import { createContext, useCallback, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-const Context = createContext();
-import io from 'socket.io-client';
+import io from "socket.io-client";
 import { url } from "../config";
+import { useWindowDimensions } from "react-native";
 
-// Definindo o socket fora do componente
+const Context = createContext();
 const socket = io(url);
 
 function TockContext(props) {
@@ -13,13 +13,15 @@ function TockContext(props) {
     const [isThemeDark, setIsThemeDark] = useState(false);
     const [market, setMarket] = useState(null);
 
+    const { width } = useWindowDimensions();
+    const isDesktop = width >= 768;
+
     const storeUser = useCallback(async (data) => {
         try {
-            let user = JSON.stringify(data);
-            if (user) {
-                setUser(data);
-                await AsyncStorage.setItem("@user", user);
-            }
+            const userData = JSON.stringify(data);
+            setUser(data);
+            await AsyncStorage.setItem("@user", userData);
+            console.log("user strored successfully!")
         } catch (error) {
             console.error("Erro ao armazenar o usuário:", error);
         }
@@ -27,11 +29,8 @@ function TockContext(props) {
 
     const clearUser = useCallback(async () => {
         try {
-            if (user) {
-                await AsyncStorage.removeItem("@user");
-                setUser(null);
-            }
-
+            await AsyncStorage.removeItem("@user");
+            setUser(null);
             if (isThemeDark) {
                 await AsyncStorage.setItem("@theme", "light");
                 setIsThemeDark(false);
@@ -39,7 +38,7 @@ function TockContext(props) {
         } catch (error) {
             console.error("Erro ao limpar o usuário:", error);
         }
-    }, [user, isThemeDark]);
+    }, [isThemeDark, user]);
 
     const tryToAutoLogin = useCallback(async () => {
         try {
@@ -57,7 +56,7 @@ function TockContext(props) {
     }, []);
 
     const storeTheme = useCallback((value) => {
-        let theme = value ? "dark" : "light";
+        const theme = value ? "dark" : "light";
         AsyncStorage.setItem("@theme", theme);
         changeTheme(value);
     }, [changeTheme]);
@@ -65,7 +64,9 @@ function TockContext(props) {
     const setCurrentTheme = useCallback(async () => {
         try {
             const theme = await AsyncStorage.getItem("@theme");
-            changeTheme(theme === "dark");
+            if (theme) {
+                changeTheme(theme === "dark");
+            }
         } catch (error) {
             console.error("Erro ao definir o tema atual:", error);
         }
@@ -77,7 +78,7 @@ function TockContext(props) {
 
     useEffect(() => {
         return () => {
-            socket.disconnect(); // Desconecta o socket ao desmontar
+            socket.disconnect();
         };
     }, []);
 
@@ -93,6 +94,7 @@ function TockContext(props) {
         setCurrentTheme,
         appName,
         market,
+        isDesktop,
         setMarket,
     };
 

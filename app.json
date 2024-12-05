@@ -2,7 +2,7 @@
   "expo": {
     "name": "LitokShop",
     "slug": "litokshop",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -12,14 +12,16 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.heralb.litokshop"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.heralb.litokshop"
+      "package": "com.heralb.litokshop",
+      "versionCode": 6
     },
     "web": {
       "favicon": "./assets/icon.png"
@@ -34,6 +36,23 @@
       "eas": {
         "projectId": "d104e808-5949-4c53-9499-b64088cd655c"
       }
-    }
+    },
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/d104e808-5949-4c53-9499-b64088cd655c"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "plugins": [
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.375816502372-halcr1snavpa3n0aa1mibm3tffm7m2g3"
+        }
+      ]
+    ]
   }
 }

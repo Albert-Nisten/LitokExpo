@@ -11,9 +11,7 @@ import { Context } from "../Context"
 
 const Register = ({navigation}) => {
 
-    const {storeUser, user} = useContext(Context)
-    const {width} = useWindowDimensions()
-    const isDesktop = width >= 768
+    const {storeUser, user, isDesktop} = useContext(Context)
 
     const {colors} = useTheme()
     const [passVisible, setPassVisible] = useState(false);
@@ -94,7 +92,7 @@ const Register = ({navigation}) => {
         
         if(values.password){
             let senha = values.password;
-            const comprimentoMinimo = 8;
+            const comprimentoMinimo = 6;
             const temLetrasMaiusculas = /[A-Z]/.test(senha);
             const temLetrasMinusculas = /[a-z]/.test(senha);
             const temNumeros = /[0-9]/.test(senha);
@@ -187,7 +185,7 @@ const Register = ({navigation}) => {
                                 <Text style = {{color: colors.text, marginTop: 5, marginBottom: 5}}>Telefone</Text>
                                  <Input
                                     left={<AntDesign size = {24} name = 'phone'/>}
-                                    placeholder = "Telefone"
+                                    placeholder = "+244"
                                     keyboardType = 'numeric'   
                                     onChangeText = {handleChange("phone")}
                                     onBlur = {handleBlur("phone")}/>
@@ -198,7 +196,7 @@ const Register = ({navigation}) => {
                                 <Text style = {{color: colors.text, marginTop: 5, marginBottom: 5}}>E-mail (Opcional)</Text>
                                  <Input
                                     left={<Entypo size = {24} name = 'email'/>}
-                                    placeholder = "Email"
+                                    placeholder = "exemplo@dominio.com"
                                     onChangeText = {handleChange("email")}
                                     onBlur = {handleBlur("email")}/>
                                 {touched.email && errors.email && (
@@ -208,7 +206,7 @@ const Register = ({navigation}) => {
                                 <Text style = {{color: colors.text, marginTop: 5, marginBottom: 5}}>Palavra-Passe</Text>
                                 <Input
                                     left={<AntDesign size = {24} name = 'lock'/>}
-                                    placeholder = "Palavra-Passe"
+                                    placeholder = " Senha de Segurança"
                                     onChangeText = {handleChange("password")}   
                                     onBlur = {handleBlur("password")}
                                     secureTextEntry = {!passVisible}
@@ -256,8 +254,8 @@ const styles = StyleSheet.create({
         borderRadius: 5
     },
     desktopBox: {
-        width: "40%",
-        marginLeft: "30%"
+        width: "80%",
+        marginLeft: "10%"
     },
     textError:{
         color: "#770303",

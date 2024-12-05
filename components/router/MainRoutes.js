@@ -40,8 +40,7 @@ function MainRoutes(){
         if(!user){
             tryToAutoLogin()
         }
-    }, [user])
-
+    }, [])
 
     return(
       <PaperProvider theme = {theme}>
@@ -81,6 +80,7 @@ function MainRoutes(){
                             options={{
                                 title: "Minha Loja",
                                 presentation: 'modal',
+                                headerShadowVisible: false
                             }}
                         />
                         <Stack.Screen
@@ -89,13 +89,14 @@ function MainRoutes(){
                             options={{
                                 title: "Criar Loja",
                                 presentation: 'modal',
+                                headerShadowVisible: false,
                             }}
                         />
                         <Stack.Screen
                             name = "AddProducts"
                             component = {AddProducts}
                             options={{
-                                title: "Adicionar Produto",
+                                title: "Novo Produto",
                                 presentation: 'modal',
                                 headerShadowVisible: false
                             }}
@@ -185,6 +186,7 @@ function MainRoutes(){
                     component = {Register}
                     options={{
                         title: AppName,
+                        headerShown: false,
                         headerShadowVisible: false
                     }}
                 />

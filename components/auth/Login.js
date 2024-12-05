@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react"
-import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View, useWindowDimensions } from "react-native"
+import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native"
 import { useTheme, Text, Button as PaperButton} from "react-native-paper"
 import TockAlert from "../tockElements/TockAlert"
 import { Formik } from "formik"
@@ -10,15 +10,37 @@ import SocialIconButton from "../tockElements/SocialIconButton"
 import { TockStyles } from "../tockElements/TockStyles"
 import { Context } from "../Context"
 import { api } from "../../config"
+import * as WebBrowser from 'expo-web-browser'
+import * as Google from 'expo-auth-session/providers/google'
+
+
+const webClientId = "375816502372-ncl541rdjj2ofdda7hnd96t96ppd5mbu.apps.googleusercontent.com"
+const iosClientId = "375816502372-halcr1snavpa3n0aa1mibm3tffm7m2g3.apps.googleusercontent.com"
+const androidClientId = "375816502372-kkfeo052ls5iqs7fega2aiam272fdbue.apps.googleusercontent.com"
+
+WebBrowser.maybeCompleteAuthSession()
+
+const config = {
+    webClientId,
+    androidClientId
+}
 
 const Login = ({navigation}) => {
-    const {width} = useWindowDimensions()
-    const isDesktop = width >= 768
-    const {storeUser, user} = useContext(Context)
+    const {storeUser, user, isDesktop} = useContext(Context)
     
     const {colors} = useTheme()
     const [passVisible, setPassVisible] = useState(false);
     const [dialog, setDialog] = useState({})
+
+    // const [request, response, promptAsync] = Google.useAuthRequest(config)
+
+    // const handleGoogleToken = () =>{
+    //     if(response?.type === "success"){
+    //         const {authentication} = response
+    //         const token = authentication?.accessToken
+    //         console.log("Google Access Token: ", token)
+    //     }
+    // }
 
     const handlePassVisible = () => {
         setPassVisible(!passVisible)
@@ -35,8 +57,8 @@ const Login = ({navigation}) => {
                 })
             }else if(resp.data.message === "sucesso"){
                 storeUser(resp.data.user)
-                console.log(resp.data.user)
-               
+                // console.log(resp.data.user)
+                navigation.navigate("MainTabs")
             }else if(resp.data.message === "erro"){
                 setDialog({
                     visible: true,
@@ -68,10 +90,8 @@ const Login = ({navigation}) => {
     }
 
     useEffect(()=>{
-        if(user){
-            navigation.navigate("MainTabs")
-        }
-    }, [user])
+       // handleGoogleToken()
+    }, [])
 
     return(
             <Formik
@@ -94,7 +114,7 @@ const Login = ({navigation}) => {
                                     <Text style = {{color: colors.text, marginBottom: 5}}>Email ou Telefone</Text>
                                     <Input
                                         left={<AntDesign size = {24} name = 'phone'/>}
-                                        placeholder = "Email ou Telefone"
+                                        placeholder = "Ultilizador"
                                         onChangeText = {handleChange("email")}
                                         onBlur = {handleBlur("email")}/>
                                     {touched.email && errors.email && (
@@ -103,7 +123,7 @@ const Login = ({navigation}) => {
                                     <Text style = {{color: colors.text, marginTop: 5, marginBottom: 5}}>Palavra-Passe</Text>
                                     <Input
                                         left={<AntDesign size = {24} name = 'lock'/>}
-                                        placeholder = "Palavra-Passe"
+                                        placeholder = "Senha de Segurança"
                                         onChangeText = {handleChange("password")}   
                                         onBlur = {handleBlur("password")}
                                         secureTextEntry = {!passVisible}
@@ -120,16 +140,20 @@ const Login = ({navigation}) => {
                                         onPress = {handleSubmit}
                                         style = {{marginTop: 10}}
                                         title = "Iniciar Sessão"/>
+
                                     
-                                    <View style = {{display: "flex", flexDirection: "row", justifyContent: "space-between", gap: 2}}>
+                                    {/* <View style = {{display: "flex", flexDirection: "row", justifyContent: "space-between", gap: 2}}>
                                         <SocialIconButton
                                             icon = {<Image style = {{width: 24, height: 24}} source={require("../dist/img/icons/google.png")} />}
-                                            style = {{...styles.socialButton, width: "50%"}}>Google</SocialIconButton>
+                                            style = {{...styles.socialButton, width: "50%"}}
+                                            onPress = {() => {promptAsync()}}
+                                        >Google</SocialIconButton>
                                     
                                         <SocialIconButton
                                             icon = {<Image style = {{width: 24, height: 24}} source={require("../dist/img/icons/facebook.png")} />}
-                                            style ={{width: "50%", ...styles.socialButton}}>Facebook</SocialIconButton>
-                                    </View>
+                                            style ={{width: "50%", ...styles.socialButton}}
+                                        >Facebook</SocialIconButton>
+                                    </View> */}
                                 
                                     <View style = {styles.footer}>
                                         <Text style = {{color: "gray"}}>Não tem uma conta?</Text>
@@ -161,8 +185,8 @@ const styles = StyleSheet.create({
         borderRadius: 5
     },
     desktopBox: {
-        width: "40%",
-        marginLeft: "30%"
+        width: "80%",
+        marginLeft: "10%"
     },
     textError:{
         color: "red",

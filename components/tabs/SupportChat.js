@@ -3,7 +3,7 @@ import { Bubble, GiftedChat } from 'react-native-gifted-chat';
 import { api } from '../../config';
 import { Context, socket } from '../Context';
 import { StyleSheet, View } from 'react-native';
-import { Avatar, Text, useTheme } from 'react-native-paper';
+import { Avatar, IconButton, Text, useTheme } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons';
 import RequireAuth from '../router/RequireAuth';
 
@@ -155,6 +155,18 @@ export default function ChatScreen() {
     );
   };
 
+  const renderSend = props => {
+    return (
+      <IconButton 
+        size={24} 
+        iconColor={colors.primary} 
+        icon={'send'}
+        onPress={() => props.onSend({text: props.text}, true)}
+        disabled={!props.text || props.text.trim().length === 0}
+      />
+    )
+  }
+
   if(!user){
     return <RequireAuth/>
   }
@@ -169,6 +181,8 @@ export default function ChatScreen() {
       renderSystemMessage={renderSystemMessage}
       renderAvatar={renderAvatar}
       renderBubble={renderBubble}
+      renderSend={renderSend}
+      placeholder='Escrever Mensagem...'
     />
   );
 }

@@ -5,7 +5,7 @@ const Input = ({left, right, ...props}) => {
     return (
         <View style = {{...styles.box, ...props.style}} {...props}>
             {left}
-            <TextInput style = {{...styles.input}} {...props}/>
+            <TextInput placeholderTextColor="#666" style = {{...styles.input, ...props.inputStyle}} {...props}/>
             {right}
         </View>
     );
@@ -20,11 +20,13 @@ const styles = StyleSheet.create({
         gap: 10,
         width: "100%",
         borderRadius: 15,
-        backgroundColor: "rgba(192, 192, 192, 0.5)",
-        padding: 10,
+        backgroundColor: "#f5f5f5",
+        paddingHorizontal: 10,
     },
     input:{
         flex: 1,
+        padding: 10,
+        color: "black"
     }
 })
 

@@ -15,26 +15,24 @@ import TockAlert from '../tockElements/TockAlert';
 
 const Profile = ({navigation}) => {
 
-    const { user } = useContext(Context)
+    const { user, isThemeDark } = useContext(Context)
     const {colors} = useTheme()
 
     const [userAddress, setUserAddress] = useState("")
     const [dialog, setDialog] = useState({})
-    const [cartCount, setCartCount] = useState(0)
-    const [orderCount, setOrderCount] = useState(0)
-
-    const Tab = createMaterialTopTabNavigator();
+    // const [cartCount, setCartCount] = useState(0)
+    // const [orderCount, setOrderCount] = useState(0)
 
     const customHeader = () => {
-
         navigation.setOptions({
+            headerShown: true,
             headerLeft: null,
             headerRight: () => 
             <IconButton 
-            onPress={() => navigation.navigate("Settings")}
-            mode='contained'
-            icon={() =>(
-                <Feather size={20} name='settings'/>
+                onPress={() => navigation.navigate("Settings")}
+                mode='contained'
+                icon={() =>(
+                    <Feather size={20} color={colors.text} name='settings'/>
             )}/>,
             headerTitle: "Meu Perfil",
             headerTitleAlign: "left"
@@ -102,14 +100,20 @@ const Profile = ({navigation}) => {
         })
     }
 
-    useEffect(()=>{
-       if(user){
-        customHeader()
-        getUserAddress()
-       }
-    }, [user])  
+    useEffect(() => {
+        if (user) {
+            customHeader();
+            getUserAddress();
+        }else{
+            navigation.setOptions({
+                headerShown: false
+            })
+        }
+    }, [user]); // Apenas 'user' como dependência, a não ser que 'isThemeDark' afete alguma lógica
+      
 
     if(!user){
+        
         return <RequireAuth/>
     }
 

@@ -49,7 +49,14 @@ const Settings = ({navigation}) => {
         },
         {
             title: "Sair",
-            event: ()=>clearUser(),
+            event: async () => {
+                try {
+                    await clearUser();
+                    // navigation.replace("Login");  // Descomente se quiser navegar após sair
+                } catch (error) {
+                    console.error("Erro ao limpar usuário:", error);
+                }
+            },
             icon:()=><MaterialCommunityIcons color={colors.text} size={30} name='logout'/>,
           
         }

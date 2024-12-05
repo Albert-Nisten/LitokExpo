@@ -78,7 +78,7 @@ const BottomTabs = () => {
                 })
                 setNotificationBagde(count)
             }else if(data.message === "not_found"){
-
+                setNotificationBagde(0)
             }
         })
         .catch(err => console.log(err.message))
@@ -99,6 +99,8 @@ const BottomTabs = () => {
                 socket.off("new_notification");
             }
         }
+        setNotificationBagde(0)
+
     }, [user, getUserNotifications])
 
     return(
@@ -159,11 +161,13 @@ function MainTabs(){
         
     }, [])
 
-    if(isDesktop){
-        return <MainDash/>
-    }else{
-        return <BottomTabs/>
-    }
+    // if(isDesktop){
+    //     return <MainDash/>
+    // }else{
+    //     return <BottomTabs/>
+    // }
+
+    return <BottomTabs/>
 }
 
 export default MainTabs;

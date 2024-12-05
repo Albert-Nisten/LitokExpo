@@ -52,10 +52,6 @@ const Notification = ({navigation}) => {
      
     }   
 
-    if(!user){
-        return <RequireAuth/>
-    }
-
     useEffect(() => {
         if(notifications.length === 0){
             getUserNotifications()
@@ -69,6 +65,12 @@ const Notification = ({navigation}) => {
             socket.off("new_notification")
         }
     }, [])
+
+
+    if(!user){
+        return <RequireAuth/>
+    }
+
 
     if(notifications.length === 0){
         return (

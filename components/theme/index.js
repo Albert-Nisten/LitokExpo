@@ -22,7 +22,7 @@ const light = {
         buttonText: "white",
         card: DefaultTheme.colors.card,
         blue: DefaultTheme.colors.primary,
-        error: '#D32F2F', 
+        error: '#770303', 
         success: '#388E3C',
         snack: DarkTheme.colors.card
     },
@@ -47,7 +47,7 @@ const dark = {
         onSurface: DefaultTheme.colors.card,
         buttonText: "black",
         blue: DefaultTheme.colors.primary,
-        error: '#D32F2F', 
+        error: '#770303', 
         success: '#388E3C', 
         snack: DefaultTheme.colors.card
     },

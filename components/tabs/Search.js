@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, TextInput as NativeInput, View, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Button, Card, IconButton, List, Text, useTheme } from 'react-native-paper';
-import { AntDesign, FontAwesome6, MaterialIcons } from '@expo/vector-icons'
+import { AntDesign, FontAwesome6, Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { api, url } from '../../config';
 import { formatToKwanza } from '../../config/utilities';
 
@@ -11,6 +11,8 @@ const Search = ({navigation}) => {
     const [items, setItems] = useState([])
     const [input, setInput] = useState("");
     const [notFound, setNotFound] = useState(false)
+    const [isInputFocus, setIsInputFocus] = useState(false)
+    
     const {colors} = useTheme();
 
     const getSugestions = () => {
@@ -73,26 +75,44 @@ const Search = ({navigation}) => {
 
     return (
         <View>
-            <View style = {styles.header}>
-                <View style = {styles.search}>
-                    <View style = {{padding: 5}}>
-                       <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <FontAwesome6 size = {24} name='circle-arrow-left'/>
-                       </TouchableOpacity>
-                    </View>
-                    <NativeInput
-                    style = {{width: "90%"}} 
-                    value={input}
-                    onChangeText={e => setInput(e)}
-                    onSubmitEditing={() => searchItem(input)}
-                    placeholder='Pesquisar'/>
-                </View>
-                <View>
+            {/* <View style = {styles.header}>
+                
+                 <View>
                     <Button onPress={() => searchItem(input)}>Pesquisar</Button>
+                </View> 
+            </View> */}
+            <View style={styles.search}>
+                <View style={{ padding: 5 }}>
+                    <TouchableOpacity 
+                        onPress={() => navigation.goBack()} 
+                        accessible={true} 
+                        accessibilityLabel="Voltar">
+                        <Ionicons size={24} name='arrow-back' color="#333" />
+                    </TouchableOpacity>
+                </View>
+                <NativeInput
+                    value={input}
+                    onChangeText={(e) => setInput(e)}
+                    placeholder="O que está procurando ?"
+                    placeholderTextColor="#666"
+                    style={styles.input}
+                    returnKeyType='search'
+                    onFocus={() => setIsInputFocus(true)}
+                    onBlur={() => setIsInputFocus(false)}
+                    onSubmitEditing={() => searchItem(input)}
+                />
+                <View>
+                    <IconButton
+                        icon={() => <Ionicons size={40} name='search-circle' color={colors.primary} />}
+                        accessible={true}
+                        accessibilityLabel="Pesquisar"
+                        onPress={() => searchItem(input)}
+                    />
                 </View>
             </View>
 
-            {notFound ? (
+            
+            {notFound && !isInputFocus ? (
                 <View style = {{height: "80%", display: "flex", justifyContent: "center", alignItems: "center"}}>
                     <MaterialIcons name="search-off" size={50} color="gray" />
                     <Text style = {{color: "gray"}} variant='titleSmall'>Nenhum Resultado Encontrado</Text>
@@ -100,7 +120,7 @@ const Search = ({navigation}) => {
                 </View>
             ):(
                <>
-                    {(sugestions.length === 0 && items.length === 0) ? (
+                    {(sugestions.length === 0 && items.length === 0 && !isInputFocus) ? (
                         <View style = {{height: "80%", display: "flex", justifyContent: "center", alignItems: "center"}}>
                             <AntDesign name="search1" size={50} color="gray" />
                             <Text style = {{color: "gray"}} variant='titleSmall'>Pesquise Produtos</Text>
@@ -166,16 +186,25 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         paddingBottom: 10,
+        backgroundColor: "red"
     },
-    search:{
+    search: {
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
-        width: "70%",
-        borderRadius: 5,
-        marginLeft: "5%",
-        backgroundColor: "#dadada"
+        borderRadius: 10, // Borda mais suave
+        backgroundColor: "#f5f5f5", // Fundo claro
+        margin: 10,
     },
+    input: {
+        flex: 1,
+        fontSize: 16,
+        color: "#333", // Texto visível e com bom contraste
+        paddingHorizontal: 10,
+        borderRadius: 5,
+        height: 40,
+    },
+    
     row: {
         display: 'flex',
         flexDirection: "row",

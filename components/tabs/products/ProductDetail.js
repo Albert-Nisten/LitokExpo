@@ -7,6 +7,7 @@ import { TockStyles } from '../../tockElements/TockStyles';
 import TockAlert from '../../tockElements/TockAlert'
 import { api, url } from '../../../config';
 import { Context } from '../../Context'
+import Markdown from 'react-native-markdown-display';
 const ProductDetail = ({route, navigation}) => {
 
     const {item: product} = route.params // it's the same to know item as product
@@ -14,10 +15,13 @@ const ProductDetail = ({route, navigation}) => {
     const {user} = useContext(Context)
     const {colors} = useTheme()
 
+    const [market, setMarket] = useState(null);
+
     const [dialog, setDialog] = useState({})
     const [pictures, setPictures] = useState([]);
     const [avatar, setAvatar] = useState(null)
     const [descriptionLines, setDescriptionLines] = useState(3)
+    const [liked, setLiked] = useState(product.liked)
 
     const customHeader = () => {
         navigation.setOptions({
@@ -26,9 +30,10 @@ const ProductDetail = ({route, navigation}) => {
                <>
                 <IconButton 
                     mode = 'contained'
-                    icon = {() =>
-                    <MaterialCommunityIcons size = {24} name = 'heart-outline'/>
-                    }
+                    size={30}
+                    style = {{backgroundColor: colors.card}}
+                    icon={liked ? "heart" : "heart-outline"}
+                    onPress={() => likeProduct(product.id)}
                 />
                </>
             )
@@ -36,8 +41,33 @@ const ProductDetail = ({route, navigation}) => {
         })
     }
 
+    const likeProduct = productId => {
+        if(!user) return navigation.navigate("Login")
+            
+        api.post("/product/like", {
+            productId,
+            userId: user.id,
+        })
+        .then(resp => {
+            const { message } = resp.data;
+            setLiked(message === "like" ? true : false)
+            console.log(message)
+        })
+        .catch(err => {
+            console.log(err)
+            setDialog({
+                text: err.message,
+                visible: true,
+                confirm: () => setDialog({}),
+                color: colors.error
+            });
+        })
+    }
+
 
     const getPictures = () => {
+        if(pictures.length > 0) return
+        
         setAvatar({uri: url+"/"+product.avatar})    
         
         api.get(`/product/pictures/${product.id}`)
@@ -55,13 +85,13 @@ const ProductDetail = ({route, navigation}) => {
         .catch(err => console.log(err.message))
     }
 
-    const handleDescriptionLines = () => {
-        if(!descriptionLines){
-            setDescriptionLines(3)
-        }else{
-            setDescriptionLines(null)
-        }
-    }
+    // const handleDescriptionLines = () => {
+    //     if(!descriptionLines){
+    //         setDescriptionLines(3)
+    //     }else{
+    //         setDescriptionLines(null)
+    //     }
+    // }
 
     const goToCheckout = () => {
         // o checkout recebe os produtos atrava de uma lista
@@ -127,10 +157,30 @@ const ProductDetail = ({route, navigation}) => {
         })
     } 
 
+
+    const getMarket = () => {
+        api.get("/market/"+product.marketId)
+        .then(resp => {
+            let data = resp.data
+            if(data.message === "sucesso"){
+                setMarket(data.market)
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            setDialog({
+                visible: true,
+                text: err.message,
+                color: colors.error,
+            })
+        })
+    }
+
     useEffect(() => {
-        customHeader()
+        getMarket();
         getPictures()
-    }, [])
+        customHeader()
+    }, [liked])
 
     return (
         <SafeAreaView style = {{flex: 1}}>
@@ -157,20 +207,25 @@ const ProductDetail = ({route, navigation}) => {
                         />
                     </View>
                     <List.Section>
-                        <List.Item
-                            title = {<Text style = {{color: colors.text}} variant='titleMedium'>{product.name}</Text>}
-                            right={() => <Text variant='titleMedium' style = {{color: colors.text}}>{formatToKwanza(product.price)}</Text>}
-                        />
-                        <List.Item 
-                            title = {<Text variant='titleSmall'>Descrição:</Text>} 
-                            description = {
-                                <Text style = {{width: "90%", color: "gray"}}>
-                                    {product.description}
-                                </Text>
-                            } 
-                            descriptionNumberOfLines={descriptionLines}
-                            onPress={handleDescriptionLines}
-                        />
+                        
+                        <View style = {{padding: 20}}>
+                            <Text variant='titleMedium'>{product.name}</Text>
+                            <Text style = {{marginBottom: 10, color: colors.blue}} >
+                               {market ? market.name : "carregado..."}
+                            </Text>
+
+                            <Text 
+                                style = {{color: colors.primary, marginBottom: 10}} 
+                                variant='titleLarge'
+                            >
+                                {formatToKwanza(product.price)}
+                            </Text>
+
+                            <Text variant='titleSmall'>Descrição:</Text>
+
+                            <Markdown>{product.description || "Nenhuma descrição disponível."}</Markdown>
+                        
+                        </View>
                         <Divider />
                         <List.Accordion title = "Detalhes">
                             <List.Item
@@ -192,6 +247,10 @@ const ProductDetail = ({route, navigation}) => {
                             <List.Item
                                 title = "Peso (kg):"
                                 right={() => <Text>{product.weight}</Text>}
+                            />
+                             <List.Item
+                                title = "Preço:"
+                                right={() => <Text>{formatToKwanza(product.price)}</Text>}
                             />
                         </List.Accordion>
                         <Divider/>
@@ -228,11 +287,12 @@ const styles = StyleSheet.create({
     imageContainer: {
         width: "100%",
         height: 300,
+        backgroundColor: "#E0E0E0"
     },
     image: {
         width: "100%",
         height: "100%",
-        objectFit: "contain"
+        objectFit: "contain",
     },
     tumbnailsContainer: {
         marginTop: 5,
@@ -243,7 +303,9 @@ const styles = StyleSheet.create({
         height: 80,
         objectFit: "cover",
         borderRadius: 10,
-        marginRight: 5
+        marginRight: 5,
+        backgroundColor: "#E0E0E0"
+
     },
     textDetailsContainer: {
         marginTop: 5,

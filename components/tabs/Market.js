@@ -1,18 +1,17 @@
 import React, { useContext, useEffect, useState } from 'react';
 import {View, StyleSheet, ScrollView, useWindowDimensions, SafeAreaView} from 'react-native';
 import { Context } from '../Context';
-import { Appbar, Avatar, Button, Card, Divider, FAB, IconButton, List, Modal, Portal, Text, Title, useTheme } from 'react-native-paper';
+import { Avatar, Button, Card, FAB, IconButton, Text, useTheme } from 'react-native-paper';
 import RequireAuth from '../router/RequireAuth';
 import RequireMarket from '../router/RequireMarket';
 import { api, url } from '../../config';
-import { AntDesign, Entypo, Ionicons, MaterialCommunityIcons} from '@expo/vector-icons';
-import { TockStyles } from '../tockElements/TockStyles';
+import { MaterialCommunityIcons} from '@expo/vector-icons';
 import TockAlert from '../tockElements/TockAlert';
-import AddProducts from './AddProducts';
 import { formatToKwanza } from '../../config/utilities';
 import Loading from '../router/Loading'
-import Network from '../router/Network'
 import IsNotMarketVerified from '../router/IsNotMakertVerified';
+import Input from '../tockElements/Input';
+import Network from '../router/Network';
 
 const Market = ({navigation}) => {
 
@@ -22,13 +21,38 @@ const Market = ({navigation}) => {
     const {user, setMarket, market} = useContext(Context)
     const [dialog, setDialog] = useState({})
     // const [market, setMarket] = useState({})
-    const [modalVisible, setModalVisible] = useState(false);
+
     const [products, setProducts] = useState([]);
-    const [isLaoding, setIsLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
     const [networkError, setNetworkError] = useState(false)
     const [isNotMarketVerified, setIsNotMarketVerified ] = useState(false);
+    const [notFoundMarket, setNotFoundMarket] = useState(false)
+
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const filteredProducts = products.filter(product => 
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     const {colors} = useTheme();
+
+    const configMarketHeader = (currentMarket) => {
+        console.log(currentMarket)
+        if(isDesktop){
+            navigation.setOptions({
+                // headerLeft: "Dashboard"
+            })
+        }else{
+            // o Navegador n suporta passar o //  ou Rigth aqui
+            navigation.setOptions({
+                headerTitle: `Minha Loja - ${currentMarket.name}`,
+                headerRight: () =>  <IconButton 
+                                        icon={() => <MaterialCommunityIcons name="cellphone-cog" size={24} color={colors.primary} />}
+                                        onPress={() => alert(`configurações de market place indisponíveis`)}
+                                    />
+            })
+        }
+    }
 
     let getMyMarket = () => {
         setIsLoading(true)
@@ -37,60 +61,69 @@ const Market = ({navigation}) => {
             let data = resp.data;
             console.log(data)
             if(data.message === "sucesso"){
-                if(data.market.enabled){
-                    setIsLoading(false)
+                if(data.market.enabled === "true" || data.market.enabled === 1){
                     setMarket(data.market)
+                    configMarketHeader(data.market)
+
                     getMarktProduct(data.market.id)
                 }else{
                     setMarket(data.market)
                     setIsNotMarketVerified(true)
-                    setIsLoading(false)
                 }
+                setIsLoading(false)
+            }
+
+            if(data.message === "not_found"){
+                setNotFoundMarket(true)
+                setIsLoading(false)
             }
         })
         .catch(err => {
             setNetworkError(true)
             setIsLoading(false)
             console.log(err)
+            setDialog({
+                title: "Ups!",
+                text: err.message,
+                visible: true,
+                color: colors.error,
+            })
         })
     }
 
 
     let getMarktProduct = id => {
+        setIsLoading(true)
         api.get(`/product/market/${id}`)
         .then(resp=>{
             let data = resp.data;
             if(data.message === "sucesso"){
                 setProducts(data.products)
+                setIsLoading(false)
             }
         })
-        .catch(err => console.log(err.message))
+        .catch(err => {
+            setIsLoading(false)
+            console.log(err.message)
+            setNetworkError(false)
+        })
     }
-
 
     useEffect(()=>{
         if(user){
-            if(isDesktop){
-                navigation.setOptions({
-                    // headerLeft: "Dashboard"
-                })
-            }else{
-                // o Navegador n suporta passar o //  ou Rigth aqui
-                navigation.setOptions({
-                    headerRight: () => <IconButton mode='contained' icon={() => <AntDesign size={20} color = {colors.text} name='search1'/>}/>
-                })
-            }
             getMyMarket();
         }
     }, [user])
 
     if(!user){
         return <RequireAuth/>
-    }else if(user.level === "customer"){
+    }
+
+    if(user.level === "customer" || notFoundMarket){
         return <RequireMarket/>
     }
 
-    if(isLaoding){
+    if(isLoading){
         return <Loading/>
     }
 
@@ -98,12 +131,14 @@ const Market = ({navigation}) => {
         return <IsNotMarketVerified market = {market}/>
     }
 
+    if(networkError) return <Network event = {() => getMyMarket()}/>
+
 
     return (
-      <SafeAreaView>
+      <SafeAreaView style = {{flex: 1}}>
         <ScrollView>
             <View style = {{padding: 10}}>
-                <Card 
+                {/* <Card 
                     mode='elevated'>
                     <Card.Title
                         left={() => <Avatar.Icon size={40} icon={() => <Ionicons size={20} color={colors.onPrimary} name='grid'/>}/>}
@@ -115,16 +150,22 @@ const Market = ({navigation}) => {
                             >Adicionar</Button>
                         )}
                     />
-                </Card>
+                </Card> */}
+                <View>
+                    <Input
+                        placeholder='Pesquisar'
+                        value={searchTerm}
+                        onChangeText={text => setSearchTerm(text)}
+                    />
+                </View>
                 <View style = {{padding: 10}}>
                     <Text style = {{color: "gray"}} variant="titleMedium">Meus Produtos</Text>
                 </View>
-                {products.map((data, key) => (
+                {filteredProducts.map((data, key) => (
                      <Card 
-                        mode='elevated' 
                         onPress={() => navigation.navigate("ProductDetail", {item: data})}
                         key={key}
-                        style = {{marginTop: 10}}
+                        style = {{marginTop: 5, backgroundColor: colors.card}}
                      >
                         <Card.Title
                             left={() => <Avatar.Image size={40} source={{uri: url+"/"+data.avatar}} />}
@@ -133,8 +174,6 @@ const Market = ({navigation}) => {
                             right={() => (
                                 <Button 
                                     style = {{marginRight: 10}} 
-                                    mode='outlined'
-                                    icon={() => <AntDesign color={colors.text} size={24} name='edit'/>}
                                     onPress={() => navigation.navigate("AddProducts", {isEdit: true, data})}
                                 >Editar</Button>
                             )}
@@ -143,6 +182,20 @@ const Market = ({navigation}) => {
                 ))}
             </View>
         </ScrollView>
+        <FAB
+            icon='plus'
+            color='white'
+            style = {{
+                position: 'absolute',
+                margin: 16,
+                right: 0,
+                bottom: 0,
+                borderRadius: 100,
+                backgroundColor: colors.primary
+              }}
+            onPress={() => navigation.navigate("AddProducts", {isEdit: false})}
+        />
+        <TockAlert value={dialog} onDismiss={() => { setDialog({ visible: false }); }} />
       </SafeAreaView>
     );
 }
@@ -164,13 +217,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         padding: 10
     },
-    fab:{
-        position: "absolute",
-        bottom: 10,
-        right: 10,
-        borderRadius: 100,
-
-    },
+    
     customAvatar: {
         width: 50,
         height: 50,

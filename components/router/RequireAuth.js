@@ -1,14 +1,14 @@
-import React from 'react';
-import {View, StyleSheet, useWindowDimensions} from 'react-native';
+import React, { useContext } from 'react';
+import {View, StyleSheet} from 'react-native';
 import { Button, Text } from 'react-native-paper';
 import { TockStyles } from '../tockElements/TockStyles';
 import { AntDesign } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { Context } from '../Context';
 
 const RequireAuth = () => {
 
-    const {width} = useWindowDimensions()
-    const isDesktop = width >= 768
+    const {isDesktop} = useContext(Context)
     const navigation = useNavigation();
 
     return (
@@ -35,8 +35,8 @@ const styles = StyleSheet.create({
         padding: 10
     },
     desktopContainer: {
-        width: "30%",
-        marginLeft: "35%"
+        width: "50%",
+        marginLeft: "25%"
     },
     text:{
         width: "100%",

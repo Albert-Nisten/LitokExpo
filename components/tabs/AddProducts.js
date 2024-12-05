@@ -1,15 +1,17 @@
 import { AntDesign, Feather, FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Formik } from 'formik';
 import React, { useContext, useEffect, useState } from 'react';
-import { View, StyleSheet, useWindowDimensions, ScrollView, SafeAreaView, Image, TouchableOpacity, Touchable } from 'react-native';
-import { Avatar, Button, Card, IconButton, Surface, Text, TextInput, Title, useTheme } from 'react-native-paper';
-import { TockStyles } from '../tockElements/TockStyles';
+import { View, StyleSheet, useWindowDimensions, ScrollView, SafeAreaView, Image, TouchableOpacity, TextInput as NativeInput, StatusBar } from 'react-native';
+import { Button, Card, FAB, IconButton, Surface, Text, TextInput, useTheme } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker'
 import TockAlert from '../tockElements/TockAlert';
 import { api, url } from '../../config';
 import Input from '../tockElements/Input';
 import * as ImagePicker from 'expo-image-picker'
 import { Context } from '../Context';
+import Markdown from 'react-native-markdown-display';
+import Feedback from '../router/Feedback';
+import Loading from '../router/Loading'
 
 const AddProducts = ({navigation, route}) => {
 
@@ -19,6 +21,7 @@ const AddProducts = ({navigation, route}) => {
     const isDesktop = width >= 768
     const initialValues = isEdit ? editData : {}
     // const [model, setModel] = useState()
+    const [isLoading, setIsloading] = useState(false)
     const [dialog, setDialog] = useState({})
     const [steps, setSteps] = useState(0)
     const [categories, setCategories] = useState([])
@@ -27,6 +30,10 @@ const AddProducts = ({navigation, route}) => {
     const [avatar, setAvatar] = useState(null)
     const [photoList, setPhotoList] = useState([])
     const [previewImage, setPreviewImage] = useState()
+    const [formatedPrice, setFormatedPrice] = useState('')
+
+    const imageSource = avatar ? avatar : (isEdit ? url + "/" + editData.avatar : null);
+    const [showFeedback, setShowFeedback] = useState({})
 
     const {market} = useContext(Context)
 
@@ -41,10 +48,71 @@ const AddProducts = ({navigation, route}) => {
                     setSelectedCategory(data.categories[0].id)
                 }
             })
-            .catch(err => console.log(err.message))
+            .catch(err => {
+                console.log(err.message)
+                setDialog({
+                    icon: "error",
+                    title: "Ups!",
+                    text: err.message,
+                    visible: true,
+                    color: colors.error,
+                    confirm: () => navigation.navigate("Market")
+                })
+            })
+    }
+
+    const validate = (values) => {
+        const errors = {};
+        
+        // Validação para o passo 1
+       
+        if(steps === 1){
+            if (!values.name) {
+                errors.name = 'Digite o nome do produto.';
+            }
+    
+            if (!values.brand) {
+                errors.brand = 'Por favor, insira a marca deste produto.';
+            }
+    
+            if (!values.price || values.price === 0) {
+                errors.price = 'Informe o preço do produto em número inteiro.';
+            }
+        }
+
+        if(steps === 4){
+            if (!values.description) {
+                errors.description = 'Descrição é um campo obrigatório.';
+            }
+        }
+
+        if(steps === 6){
+            if (!values.sales_conditions) {
+                errors.sales_conditions = 'As Condições de Venda são obrigatórias. .';
+            }
+        }
+
+        console.log(errors)
+        return errors
+    }
+
+    const removeStep = () => {
+        setSteps((prevStep) => prevStep - 1);
+
+    }
+
+    const handleNextStep = values => {
+        // Se não houver erros, avance para a próxima etapa
+        if((steps+1) === formInfos.length){
+            createProduct(values)
+            console.log(values)
+        }else{
+            setSteps((prevStep) => prevStep + 1);
+        }
     }
 
     const createProduct = values => {
+        setIsloading(true)
         if (values) {
             let form = new FormData();
             if(avatar){
@@ -89,24 +157,39 @@ const AddProducts = ({navigation, route}) => {
                 .then(resp => {
                     let data = resp.data
                     console.log(data)
+                    setIsloading(false)
                     if (data.message === "sucesso") {
-                        setDialog({
+                        setShowFeedback({
+                            icon: "success",
                             title: "Sucesso",
                             text: "Seu produto foi adicionado com sucesso e passará por um processo de avaliação. Ele estará disponível no estoque após a conclusão dessa etapa. Agradecemos pela sua compreensão.",
                             visible: true,
                             color: colors.success,
-                            confirm: () => navigation.navigate("Market"),
+                            event: () => navigation.navigate("Market"),
                         })
                     } else {
-                        setDialog({
+                        setShowFeedback({
+                            icon: "error",
                             title: "Ups!",
                             text: "Não foi possível adicionar este produto, tente novamente mais tarde.",
                             visible: true,
                             color: colors.error,
+                            event: () => {setSteps(1); setShowFeedback({visible: false})}
                         })
                     }
                 })
-                .catch(err => console.log(err))
+                .catch(err => {
+                    console.log(err)
+                    setIsloading(false)
+                    setShowFeedback({
+                        icon: "error",
+                        title: "Ups!",
+                        text: err.message,
+                        visible: true,
+                        color: colors.error,
+                        event: () => {setSteps(0), setShowFeedback({visible: false})}
+                    })
+                })
             }else{
                 api.put(`/product/${editData.id}`, form, {
                     headers: {
@@ -116,29 +199,50 @@ const AddProducts = ({navigation, route}) => {
                 .then(resp => {
                     let data = resp.data
                     console.log(data)
+                    setIsloading(false)
                     if (data.message === "sucesso") {
-                        setDialog({
+                        setShowFeedback({
+                            icon: "success",
                             title: "Sucesso",
                             text: "As informações do seu produto foram atualizadas com sucesso e passarão por um processo de avaliação. As novas informações estarão disponíveis no estoque após a conclusão desta etapa.",
                             visible: true,
                             color: colors.success,
-                            confirm: () => navigation.navigate("Market"),
+                            event: () => navigation.navigate("Market"),
                         })
                     } else {
-                        setDialog({
+                        setShowFeedback({
+                            icon: "error",
                             title: "Ups!",
                             text: "Não foi possível actualizar este produto, tente novamente mais tarde.",
                             visible: true,
                             color: colors.error,
+                            event: () => {setSteps(0); setShowFeedback({visible: false})}
+
                         })
                     }
                 })
-                .catch(err => console.log(err))
+                .catch(err => {
+                    //on update or PUT reqiuest
+                    console.log(err)
+                    setIsloading(false)
+                    setShowFeedback({
+                        icon: "error",
+                        title: "Ups!",
+                        text: err.message,
+                        visible: true,
+                        color: colors.error,
+                        event: () => {setSteps(0); setShowFeedback({visible: false})}
+
+                    })
+                })
             }
         }
     }
 
     const formInfos = [
+        {
+            title: "Imagens do Produto",
+        },
         {
             title: "Informações Básicas",
         },
@@ -149,19 +253,53 @@ const AddProducts = ({navigation, route}) => {
             title: "Informações Adicionais"
         },
         {
-            title: "Observações"
+            title: "Descrição",
+            subtitle: (
+                <Text style={{ fontSize: 13, textAlign: 'justify', color: "gray" }}>
+                    Aqui, você pode incluir qualquer informação relevante que não tenha sido solicitada nas etapas anteriores.
+                    {'\n'}
+                    <Text style={{ fontWeight: 'bold' }}>Dicas de formatação:</Text>
+                    {'\n\n'}
+                    
+                    <Text style = {{fontWeight: "bold"}}>Negrito</Text>: <Text>  **texto**</Text>
+                    {'\n'}
+                    <Text style = {{fontWeight: "bold"}}>Itálico</Text>: <Text style={{ fontStyle: 'italic' }}>  *texto*</Text>
+                    {'\n'}
+                    <Text style = {{fontWeight: "bold"}}>Listas</Text>: <Text style={{  }}>  - item</Text> ou <Text style={{  }}>1. item</Text>
+                    {'\n'}
+                    <Text style = {{fontWeight: "bold"}}>Links</Text>: <Text style={{ }}> [texto](http://exemplo.com)</Text>
+                </Text>
+            )
+        },
+        {
+            title: "Rever Descrição",
+            subtitle: <Text style = {{color: "gray"}}>Antes de continuar, por favor, revise a descrição do produto para garantir que todas as informações estão corretas e completas.</Text>
+        },
+        {
+            title: "Condições de Venda",
+            subtitle: (
+                <Text style={{ fontSize: 13, textAlign: 'justify', color: "gray" }}>
+                    Informe aqui as regras para a venda do produto e políticas de devolução.
+                    
+                    {'\n'}
+                    <Text style={{ fontWeight: 'bold' }}>Dicas de formatação:</Text>
+                    {'\n\n'}
+                    
+                    <Text style = {{fontWeight: "bold"}}>Negrito</Text>: <Text>  **texto**</Text>
+                    {'\n'}
+                    <Text style = {{fontWeight: "bold"}}>Itálico</Text>: <Text style={{ fontStyle: 'italic' }}>  *texto*</Text>
+                    {'\n'}
+                    <Text style = {{fontWeight: "bold"}}>Listas</Text>: <Text style={{  }}>  - item</Text> ou <Text style={{  }}>1. item</Text>
+                    {'\n'}
+                    <Text style = {{fontWeight: "bold"}}>Links</Text>: <Text style={{ }}> [texto](http://exemplo.com)</Text>
+                </Text>
+            )
+        },
+        {
+            title: "Rever Condições de Venda",
+            subtitle: <Text style = {{color: "gray"}}>Antes de finalizar, verifique as condições de venda para garantir que você incluiu todas as informações necessárias.</Text>
         }
     ]
-
-    const removeStep = () => {
-        let value = steps - 1;
-        setSteps(value)
-    }
-
-    const addStep = () => {
-        let value = steps + 1;
-        setSteps(value)
-    }
 
     const pickImage = async data => {
         // Solicita permissão para acessar a biblioteca de mídia
@@ -170,7 +308,7 @@ const AddProducts = ({navigation, route}) => {
         let result = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
           allowsEditing: true,
-          aspect: [4, 4],
+          // aspect: [4, 4],
           quality: 1,
         });
     
@@ -240,6 +378,26 @@ const AddProducts = ({navigation, route}) => {
         closePreview()
     }
 
+    const handleFormatPrice = (numberString) => {
+        // Remove caracteres que não são dígitos
+        const cleanedString = numberString.replace(/\D/g, '');
+        if (!cleanedString) {
+            setFormatedPrice(''); // Limpa o campo quando não há entrada
+            return;
+        }
+    
+        // Converte para número e formata como moeda
+        const number = parseFloat(cleanedString) / 100;
+        const finalNumber = number.toLocaleString('pt-BR', {
+            style: 'decimal',
+            currency: 'BRL',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        });
+    
+        setFormatedPrice(finalNumber);
+    };
+
     useEffect(() => {
         getCategory()
         if(isEdit){
@@ -250,13 +408,20 @@ const AddProducts = ({navigation, route}) => {
         }
     }, [avatar, photoList, previewImage])
 
+    if(isLoading){
+        return <Loading/>
+    }
+
     if(previewImage){
         return(
             <View style = {styles.previewContainer}>
+                <StatusBar backgroundColor={colors.text} barStyle="light-content"/>
                 <View>
                     <IconButton 
-                        size={19} 
+                        size={30} 
                         icon='close' 
+                        iconColor='white'
+                        containerColor={colors.primary}
                         mode='contained'
                         onPress={() => setPreviewImage(null)}
                     />
@@ -271,7 +436,7 @@ const AddProducts = ({navigation, route}) => {
                         style = {{width: "50%", backgroundColor: "white"}} 
                         icon={() =><Feather size={20}  name='refresh-ccw'/>}
                         textColor='black'
-                    >Actualizar</Button>
+                    >Mudar Imagem</Button>
 
                     <Button 
                         onPress={() => removePic(previewImage)}
@@ -285,43 +450,79 @@ const AddProducts = ({navigation, route}) => {
         )
     }
 
+    if(showFeedback.visible){
+        return <Feedback 
+                    icon = {showFeedback.icon}
+                    title = {showFeedback.title} 
+                    text = {showFeedback.text}
+                    event= {showFeedback.event}
+                />
+    }
+
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <ScrollView>
                 <Formik
                     initialValues={initialValues}
-                    onSubmit={createProduct}
+                    // onSubmit={createProduct}
+                    validate={validate}
+                    onSubmit={handleNextStep}
                 >
-                    {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-                        <Card mode='contained' style={{ marginTop: 20, backgroundColor: "transparent" }}>
+                    {({ handleChange, handleBlur, handleSubmit, values, errors, setFieldValue, touched }) => (
+                        <Card mode='contained' style={{ flex: 1, marginTop: 20, backgroundColor: "transparent" }}>
                             <Card.Title
-                                title={<Text variant='titleMedium'>{formInfos[steps].title}</Text>}
-                                // subtitle={<Text variant='titleSmall'>{values.name}</Text>}
+                                title={<Text style = {{color: colors.primary}} variant='titleMedium'>{formInfos[steps].title}</Text>}
+                                subtitle={
+                                    formInfos[steps].subtitle ? formInfos[steps].subtitle : <Text style={{ fontWeight: "bold", color: "gray" }} variant='titleSmall'>{values.name}</Text>
+                                }
+                                subtitleNumberOfLines={20}
                             />
-                            <Card.Content>
+                            <Card.Content style = {{flex: 1}}>
                                 {steps === 0 && (
                                     <View>
+
+                                        <View style = {{ width: "100%", height: 230, backgroundColor: "#f2f2f2", borderRadius: 10}}>
+                                            {(!isEdit && !avatar) && (
+                                                <TouchableOpacity 
+                                                    style = {{width: "100%", height: "100%", display: "flex", justifyContent: "center", padding: 10, alignItems: "center",}} 
+                                                    onPress={() => pickImage({type: "avatar"})}
+                                                >
+                                                   <IconButton 
+                                                        mode='contained'
+                                                        size={40}
+                                                        containerColor={colors.onPrimary}
+                                                        icon={() => <AntDesign name="upload" size={24} color="black" />}
+                                                    />
+                                                    <Text style = {{fontWeight: "bold", marginTop: 5}}>Clique para fazer upload da imagem</Text>
+                                                    <Text style = {{textAlign: "center", color: "gray"}}>esta imagem será exibida como destaque para o produto</Text>
+                                                </TouchableOpacity>
+                                            )}
+
+                                            {imageSource && (
+                                                <Image 
+                                                    style={{ width: "100%", height: "100%", borderRadius: 5 }} 
+                                                    source={{ uri: imageSource }} 
+                                                    resizeMode="contain"
+                                                />
+                                            )}
+                                            
+                                        </View>
+
                                         {(isEdit || avatar) &&(
-                                            <View>
-                                                <Text style = {{textAlign: "justify", color: "gray"}}>Para remover ou atualizar qualquer foto, inclusive a foto principal, toque na imagem desejada. A primeira foto na lista será considerada como a foto principal.</Text>
+                                            <View style = {{marginTop: 5}}>
+                                                <Text style = {{textAlign: "justify", color: "gray",  fontSize: 12}}>Para remover ou atualizar uma foto, toque na imagem. A primeira da lista será considerada a principal.</Text>
                                             </View>
                                         )}
-                                        <ScrollView horizontal contentContainerStyle = {{paddingBottom: 10, paddingTop: 10}}>
+
+                                        <ScrollView horizontal contentContainerStyle = {{padding: 10, paddingTop: 0,  paddingLeft: 1}}>
                                             <View style = {{display: "flex", flexDirection: "row", gap: 10}}>
                                                 <TouchableOpacity  onPress={() => setPreviewImage({avatar: avatar ? avatar : url+"/"+editData.avatar, type: "avatar", index: null})}>
-                                                    {avatar && (
+                                                    {imageSource && (
                                                         <Surface style={{ width: 70, height: 70, borderRadius: 5, backgroundColor: colors.card }}>
                                                             <Image 
-                                                                style={{ width: "100%", height: "100%", objectFit: "fit", borderRadius: 5 }} 
-                                                                source={{uri: avatar ? avatar : url+"/"+editData.avatar}} 
-                                                            />
-                                                        </Surface>
-                                                    )}
-                                                    {(isEdit && !avatar) &&(
-                                                        <Surface style={{ width: 70, height: 70, borderRadius: 5, backgroundColor: colors.card }}>
-                                                            <Image 
-                                                                style={{ width: "100%", height: "100%", objectFit: "fit", borderRadius: 5 }} 
-                                                                source={{uri: url+"/"+editData.avatar}} 
+                                                                style={{ width: "100%", height: "100%", borderRadius: 5 }} 
+                                                                source={{ uri: imageSource }} 
+                                                                resizeMode="cover" // Use 'cover' se desejar que a imagem preencha o espaço
                                                             />
                                                         </Surface>
                                                     )}
@@ -336,25 +537,38 @@ const AddProducts = ({navigation, route}) => {
                                                     </Surface>
                                                      </TouchableOpacity>
                                                 ))}
-                                                {(!isEdit && !avatar) && (
-                                                    <TouchableOpacity onPress={() => pickImage({type: "avatar"})}>
-                                                        <Surface style={{...styles.addPhoto, backgroundColor: colors.card}}>
-                                                            <MaterialIcons name="add-photo-alternate" size={30} color="black" />
-                                                            <Text style = {{textAlign: "center"}}>Carregar Foto</Text>
-                                                        </Surface>
-                                                    </TouchableOpacity>
-                                                )}
-                                                {(isEdit || avatar) && (
-                                                    <TouchableOpacity onPress={() => pickImage({type: "other"})}>
-                                                        <Surface style={{...styles.addPhoto, backgroundColor: colors.card}}>
-                                                            <AntDesign name="pluscircleo" size={24} color="gray" />
-                                                        </Surface>
-                                                    </TouchableOpacity>
-                                                )}
                                                 
+                                                
+                                                {(isEdit || avatar) && (
+                                                    <FAB
+                                                        icon={() => <AntDesign name="pluscircleo" size={24} color={colors.primary} />}
+                                                        style = {{...styles.addPhoto, backgroundColor: colors.onPrimary, borderColor: colors.primary, borderWidth: 1}}
+                                                        mode='flat'
+                                                        onPress={() => pickImage({type: "other"})}
+                                                    />
+                                                )}
                                             </View>
                                         </ScrollView>
+                                    </View>
+                                )}
+
+                                 {steps === 1 && (
+                                    <View>
+                                    
+                                       
                                         
+                                        <Text style={{ color: colors.text, marginBottom: 5 }}>Nome <Text style = {{color: colors.error}}>*</Text></Text>
+                                        <Input
+                                            left={<Feather name="tag" size={24} color={colors.text} />}
+                                            value = {values.name}
+                                            onChangeText={handleChange("name")}
+                                            onBlur={handleBlur("name")}
+                                            autoFocus={false}
+                                        />
+                                        {errors.name && (
+                                            <Text style={{color: colors.error}}>{errors.name}</Text>
+                                        )}
+
                                         <Text style={{ marginBottom: 3 }}>Categoŕa</Text>
                                         <Surface style={{ borderRadius: 10, backgroundColor: "rgba(192, 192, 192, 0.5)" }} mode='flat'>
                                             <View style={styles.selectContainer}>
@@ -372,15 +586,8 @@ const AddProducts = ({navigation, route}) => {
                                                 </Picker>
                                             </View>
                                         </Surface>
-                                        <Text style={{ color: colors.text, marginBottom: 5 }}>Nome </Text>
-                                        <Input
-                                            left={<Feather name="tag" size={24} color={colors.text} />}
-                                            value = {values.name}
-                                            onChangeText={handleChange("name")}
-                                            onBlur={handleBlur("name")}
-                                            autoFocus={false}
-                                        />
-                                        <Text style={{ color: colors.text, marginBottom: 5 }}>Marca</Text>
+
+                                        <Text style={{ color: colors.text, marginBottom: 5 }}>Marca <Text style = {{color: colors.error}}>*</Text></Text>
                                         <Input
                                             left={<MaterialIcons name="branding-watermark" size={24} color={colors.text} />}
                                             value = {values.brand}
@@ -388,15 +595,30 @@ const AddProducts = ({navigation, route}) => {
                                             onBlur={handleBlur("brand")}
                                             autoFocus={false}
                                         />
-                                        <Text style={{ color: colors.text, marginBottom: 5 }}>Preço (0.00)</Text>
+                                        {errors.brand && (
+                                            <Text style={{color: colors.error}}>{errors.brand}</Text>
+                                        )}
+
+                                        <Text style={{ color: colors.text, marginBottom: 5 }}>Preço <Text style = {{color: colors.error}}>*</Text></Text>
                                         <Input
                                             left={<Text variant='titleSmall'>KZ</Text>}
-                                            value = {values.price}
-                                            onChangeText={handleChange("price")}
+                                            value={formatedPrice}
+                                            onChangeText={e => {
+                                                const cleanedString = e.replace(/\D/g, ''); // Limpa a entrada
+                                                handleFormatPrice(cleanedString); // Formata para visualização
+                                                
+                                                const numberForFormik = Number(cleanedString) / 100; // Converte para número
+                                                setFieldValue("price", numberForFormik.toString()); // Atualiza o Formik
+                                            }}
                                             onBlur={handleBlur("price")}
-                                            keyboardType = "numeric"
+                                            keyboardType="numeric"
                                             autoFocus={false}
                                         />
+
+                                        {errors.price && (
+                                            <Text style={{color: colors.error}}>{errors.price}</Text>
+                                        )}
+
                                         <Text style={{ marginBottom: 3 }}>Condição</Text>
                                         <Surface style={{ borderRadius: 10, backgroundColor: "rgba(192, 192, 192, 0.5)" }} mode='flat'>
                                             <View style={styles.selectContainer}>
@@ -415,7 +637,7 @@ const AddProducts = ({navigation, route}) => {
                                         </Surface>
                                     </View>
                                 )}
-                                {steps === 1 && (
+                                {steps === 2 && (
                                     <View>
                                         <Text style={{ color: colors.text, marginBottom: 5 }}>Peso (kg)</Text>
                                         <Input
@@ -424,6 +646,7 @@ const AddProducts = ({navigation, route}) => {
                                             onChangeText={handleChange("weight")}
                                             onBlur={handleBlur("weight")}
                                             autoFocus={false}
+                                            keyboardType = "numeric"
                                         />
                                         <Text style={{ color: colors.text, marginBottom: 5 }}>Dimensões</Text>
                                         <Input
@@ -443,22 +666,23 @@ const AddProducts = ({navigation, route}) => {
                                         />
                                     </View>
                                 )}
-                                {steps === 2 && (
+                                {steps === 3 && (
                                     <View>
-                                        <Text style={{ color: colors.text, marginBottom: 5 }}>Palavras-Chave (Tags)</Text>
+                                        <Text style={{ color: colors.text, marginBottom: 5 }}>Tags para Busca</Text>
                                         <Input
                                             left={<AntDesign name='tags' size={24} color={colors.text} />}
                                             value = {values.tags}
                                             onChangeText={handleChange("tags")}
                                             onBlur={handleBlur("tags")}
+                                            placeholder = "exempo, exemplo_tag"
                                             autoFocus={false}
                                         />
-                                        <Text style={{ color: colors.text, marginBottom: 5 }}>Quantidade (Stock)</Text>
+                                        <Text style={{ color: colors.text, marginBottom: 5 }}>Quantidade em Stock</Text>
                                         <Input
                                             left={<AntDesign name='appstore1' size={24} color={colors.text} />}
                                             value = {values.stock}
-                                            onChangeText={handleChange("stcok")}
-                                            onBlur={handleBlur("stcok")}
+                                            onChangeText={handleChange("stock")}
+                                            onBlur={handleBlur("stock")}
                                             keyboardType = "numeric"
                                             autoFocus={false}
                                         />
@@ -472,42 +696,69 @@ const AddProducts = ({navigation, route}) => {
                                         />
                                     </View>
                                 )}
-                                {steps === 3 && (
+
+
+                                {errors.description && (
+                                    <Text style={{color: colors.error}}>{errors.description}</Text>
+                                )}
+                                {steps === 4 && (
                                     <View>
                                         <TextInput
-                                            label={"Descrição do Produto"}
-                                            right={<AntDesign name='checkcircle' size={24} color={colors.text} />}
+                                            placeholder={"Escrever Descrição"}
                                             value = {values.description}
                                             onChangeText={handleChange("description")}
                                             onBlur={handleBlur("description")}
                                             autoFocus={false}
                                             multiline={true}
-                                            numberOfLines={4}
-                                            style={{ marginTop: 10 }}
+                                            numberOfLines={12}
                                             mode='outlined'
+                                            style = {{marginTop: 10}}
                                         />
+                                    </View>
+                                )}
+
+                                {steps === 5 && (
+                                    <View>
+                                        <Markdown>{values.description || ""}</Markdown>
+                                    </View>
+                                )}
+
+                                {errors.sales_conditions && (
+                                    <Text style={{color: colors.error}}>{errors.sales_conditions}</Text>
+                                )}
+
+                                {steps === 6 && (
+                                    <View>
                                         <TextInput
-                                            label={"Condições de Venda"}
+                                            placeholder={"Escrver Condições de Venda"}
                                             right={<AntDesign name='checkcircle' size={24} color={colors.text} />}
                                             value = {values.sales_conditions}
                                             onChangeText={handleChange("sales_conditions")}
                                             onBlur={handleBlur("sales_conditions")}
                                             autoFocus={false}
                                             multiline={true}
-                                            numberOfLines={4}
+                                            numberOfLines={12}
                                             style={{ marginTop: 10 }}
                                             mode='outlined'
                                         />
                                     </View>
                                 )}
+
+                                {steps === 7 && (
+                                    <View>
+                                         <Markdown>{values.sales_conditions || ""}</Markdown>
+                                    </View>
+                                )}
+
                             </Card.Content>
                             <Card.Actions>
                                 {steps > 0 && (
-                                    <Button onPress={removeStep}>Anterior</Button>
+                                    <Button  style = {{width: "50%"}} mode='text' onPress={removeStep}>Anterior</Button>
                                 )}
-                                {(steps + 1) !== formInfos.length ? (
-                                    <Button onPress={addStep}>Próximo</Button>
-                                ) : (
+                                {(steps > 0) && (steps + 1 !== formInfos.length) && (
+                                    <Button style = {{width: "50%"}} mode = "outlined" onPress={handleSubmit}>Próximo</Button>
+                                )}
+                                {(steps+1) === formInfos.length &&( 
                                     <Button onPress={handleSubmit}>Concluír</Button>
                                 )}
                             </Card.Actions>
@@ -515,8 +766,18 @@ const AddProducts = ({navigation, route}) => {
                     )}
                 </Formik>
             </ScrollView>
-
-            <TockAlert value={dialog} onDismiss={() => { setDialog({ visible: false }); }} />
+            {/* Adicione o botão como footer */}
+            {steps === 0 && (
+                <View style={{ position: 'absolute', bottom: 20, left: 0, right: 0, alignItems: 'center', padding: 10 }}>
+                    <Button  
+                        style = {{width: "100%"}} 
+                        mode='contained'
+                        disabled={!imageSource}
+                        onPress={handleNextStep}
+                    >Informações Adicionais</Button>
+                </View>
+            )}
+            <TockAlert value={dialog}  onDismiss={() => { setDialog({ visible: false }); }} />
 
         </SafeAreaView>
 

@@ -9,15 +9,16 @@ const Order = () => {
 
     const {user} = useContext(Context)
 
-    const Tab = createMaterialTopTabNavigator();
+
+    useEffect(() => {
+
+    }, [user])
 
     if(!user){
         return <RequireAuth/>
     }
 
-    useEffect(() => {
-
-    }, [user])
+    const Tab = createMaterialTopTabNavigator();
     
     return (
         <Tab.Navigator>
