@@ -43,16 +43,6 @@
       "fallbackToCacheTimeout": 0,
       "url": "https://u.expo.dev/d104e808-5949-4c53-9499-b64088cd655c"
     },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
-    "plugins": [
-      [
-        "@react-native-google-signin/google-signin",
-        {
-          "iosUrlScheme": "com.googleusercontent.apps.375816502372-halcr1snavpa3n0aa1mibm3tffm7m2g3"
-        }
-      ]
-    ]
+    "runtimeVersion": "1.0.1"
   }
 }
