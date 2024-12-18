@@ -3,62 +3,18 @@ import Home from "../tabs/Home";
 import Profile from "../tabs/Profile";
 import Search from "../tabs/Search";
 import Market from '../tabs/Market';
-import { Entypo, Feather, AntDesign, FontAwesome5, MaterialCommunityIcons, Ionicons} from '@expo/vector-icons'
-import { AppName, Left, Right } from "../tockElements/Toolbar";
+import { FontAwesome5, MaterialCommunityIcons, Ionicons} from '@expo/vector-icons'
+import { Left, Right } from "../tockElements/Toolbar";
 import { useContext, useEffect, useState } from "react";
-import Chat from "../tabs/Chat";
-import { DrawerContentScrollView, DrawerItem, createDrawerNavigator } from "@react-navigation/drawer";
-import { Image, useWindowDimensions, View } from "react-native";
-import AddProducts from "../tabs/AddProducts";
+import { Image, useWindowDimensions } from "react-native";
 import Order from "../tabs/Order";
 import Notification from "../tabs/Notification";
 import { api } from "../../config";
 import { Context, socket } from "../Context";
-import { Text } from "react-native-paper";
-import MainDash from "./MainDash";
 
-const Drawer = createDrawerNavigator();
 const Tab = createBottomTabNavigator();
 
-const CustomDrawerContent = (props) => (
-    <DrawerContentScrollView {...props}>
-        <DrawerItem
-            label = "Dashboard" 
-            icon = {({color, size}) => <AntDesign color={color} size={size} name = 'home' />}
-            onPress={() => props.navigation.navigate("Home")}
-        />
-        <DrawerItem
-            label = "Usuários" 
-            icon = {({color, size}) => <Feather color={color} size={size} name = 'users' />}
-            onPress={() => props.navigation.navigate("Search")}
-        />
-        <DrawerItem
-            label = "Pedidos"
-            icon = {({color, size}) => <MaterialCommunityIcons color={color} size={size} name = 'shopping' />}
-            onPress={() => props.navigation.navigate("Market")}
-        />
-    </DrawerContentScrollView>
-)
 
-const DrawerMenu = () => (
-    <Drawer.Navigator
-        drawerContent={(props) => <CustomDrawerContent {...props}/>}
-        screenOptions={{
-            headerLeft: Left,
-            headerRight: Right,
-            headerShadowVisible: false,
-            headerTitle: AppName,
-            drawerType: "permanent"
-        }}
-    >
-        <Drawer.Screen name = "Home" component={Home} />
-        <Drawer.Screen name = "Search" component={Search} />
-        <Drawer.Screen name = "Chat" component={Chat} />
-        <Drawer.Screen name = "Profile" component={Profile} />
-        <Drawer.Screen name = "Market" component={Market} />
-        <Drawer.Screen name = "AddProducts" options={{title: "Adicionar produto"}} component={AddProducts} />
-    </Drawer.Navigator>
-)
 
 const BottomTabs = () => {
     const [notificationBagde, setNotificationBagde] = useState(0);

@@ -23,6 +23,7 @@ import AccountSettings from "../tabs/AccountSettings";
 import Market from "../tabs/Market";
 import NotificationDetail from "../tabs/NotificationDetail";
 import SupportChat from "../tabs/SupportChat";
+import LocalBrowser from "./LocalBrowser";
 
 
 function MainRoutes(){
@@ -188,6 +189,13 @@ function MainRoutes(){
                         title: AppName,
                         headerShown: false,
                         headerShadowVisible: false
+                    }}
+                />
+                <Stack.Screen
+                    name = "LocalBrowser"
+                    component = {LocalBrowser}
+                    options={{
+                        title: AppName
                     }}
                 />
             </Stack.Navigator>

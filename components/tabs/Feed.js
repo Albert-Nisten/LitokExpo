@@ -148,7 +148,7 @@ const Feed = () => {
     }
 
     return (
-        <SafeAreaView>
+        <SafeAreaView style = {{flex: 1}}>
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scroll}
@@ -157,7 +157,7 @@ const Feed = () => {
                 }
             >
                 <View style={styles.titleContainer}>
-                    <Text variant="titleSmall">Login Support</Text>
+                    <Text variant="titleSmall">Acabou de Cehgar</Text>
                 </View>
 
                 <View style={[styles.container, isDesktop ? styles.containerDesktop : styles.containerMobile]}>

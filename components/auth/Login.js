@@ -124,8 +124,10 @@ const Login = ({navigation}) => {
                                     <Input
                                         left={<AntDesign size = {24} name = 'lock'/>}
                                         placeholder = "Senha de Segurança"
-                                        onChangeText = {handleChange("password")}   
+                                        onChangeText = {handleChange("password")} 
+                                        returnKeyType='go'
                                         onBlur = {handleBlur("password")}
+                                        onSubmitEditing={handleSubmit}
                                         secureTextEntry = {!passVisible}
                                         right={
                                             <TouchableOpacity onPress={handlePassVisible}>

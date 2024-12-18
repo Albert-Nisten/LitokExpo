@@ -4,7 +4,7 @@ import { Context } from '../Context';
 import RequireAuth from '../router/RequireAuth';
 import { Avatar, Button, Divider, IconButton, List, Switch, Text, useTheme } from 'react-native-paper';
 import { TockStyles } from '../tockElements/TockStyles';
-import { Ionicons, Feather, MaterialCommunityIcons, FontAwesome5, AntDesign} from '@expo/vector-icons';
+import { Ionicons, Feather, MaterialCommunityIcons, FontAwesome5, AntDesign, MaterialIcons} from '@expo/vector-icons';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import Orders, { AllOrders, PendingOrders, DeliveredOrders, CanceledOrders } from './Orders';
@@ -30,9 +30,9 @@ const Profile = ({navigation}) => {
             headerRight: () => 
             <IconButton 
                 onPress={() => navigation.navigate("Settings")}
-                mode='contained'
+                size={30}
                 icon={() =>(
-                    <Feather size={20} color={colors.text} name='settings'/>
+                    <MaterialIcons size={30} color={colors.text} name='menu'/>
             )}/>,
             headerTitle: "Meu Perfil",
             headerTitleAlign: "left"
