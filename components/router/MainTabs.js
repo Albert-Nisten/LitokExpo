@@ -101,7 +101,8 @@ const BottomTabs = () => {
           <Tab.Screen 
               name = "Perfil"
               options={{
-                  tabBarIcon: ({color, size}) => <FontAwesome5 color={color} size={size} name = 'user' />
+                  tabBarIcon: ({color, size}) => <FontAwesome5 color={color} size={size} name = 'user' />,
+                  headerShown: false
               }}  
               component={Profile} 
           />

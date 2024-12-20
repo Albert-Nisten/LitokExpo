@@ -1,11 +1,11 @@
 import { useContext, useEffect, useState } from "react"
-import { KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, View, useWindowDimensions } from "react-native"
-import { useTheme, Text, TextInput, Button as PaperButton} from "react-native-paper"
+import { KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, TouchableOpacity, View, useWindowDimensions } from "react-native"
+import { useTheme, Text, TextInput, Button as PaperButton, Checkbox, List} from "react-native-paper"
 import { Formik } from "formik"
 import Input from "../tockElements/Input"
 import Button from "../tockElements/Button"
 import { AntDesign, Entypo, Feather, FontAwesome5 } from "@expo/vector-icons"
-import { api } from "../../config"
+import { api, policy_privacy } from "../../config"
 import TockAlert from "../tockElements/TockAlert"
 import { Context } from "../Context"
 
@@ -16,6 +16,8 @@ const Register = ({navigation}) => {
     const {colors} = useTheme()
     const [passVisible, setPassVisible] = useState(false);
     const [dialog, setDialog] = useState({})
+
+    const [checked, setChecked] = useState(false)
 
 
     const handlePassVisible = () => {
@@ -33,6 +35,7 @@ const Register = ({navigation}) => {
                     title: "Criação de conta mal sucedida.",
                     text: "Desculpe, não foi possível concluir seu cadastro. Por favor, verifique as informações fornecidas e tente novamente.",
                     button: "Entendi",
+                    color: colors.error
                 })
             }else if(resp.data.message === "sucesso"){
                 setDialog({
@@ -40,7 +43,8 @@ const Register = ({navigation}) => {
                     title: "Conta criada com sucesso!",
                     text: "Parabéns! Seu cadastro foi concluído com sucesso. Bem-vindo ao TockApp!",
                     button: "ok",
-                    event: ()=>alert("going to validation")
+                    event: ()=>alert("going to validation"),
+                    color: colors.success
                 })
                 storeUser(resp.data.user)
             }else if(resp.data.message === "erro"){
@@ -49,7 +53,8 @@ const Register = ({navigation}) => {
                     title: "Ups!",
                     text: "Desculpe, ocorreu um erro inesperado. Nossa equipe já foi notificada e está trabalhando para resolver o problema. Por favor, tente novamente mais tarde.",
                     button: "ok",
-                    event: ()=>alert("going to validation")
+                    event: ()=>alert("going to validation"),
+                    color: colors.error
                 })
             }
         })
@@ -141,6 +146,10 @@ const Register = ({navigation}) => {
         return errors
     }
 
+    const handleCheck = () => {
+        setChecked(!checked)
+    }
+
     useEffect(()=>{
         if(user){
             navigation.navigate("MainTabs")
@@ -148,95 +157,119 @@ const Register = ({navigation}) => {
     }, [user])
 
     return(
-        <View style = {{...styles.container}}>
-           
-            <Formik
-                initialValues={{
-                    name: "",
-                    phone: "",
-                    email: "", 
-                    password: ""
-                }}
-                validate={validate}
-                onSubmit = {signUp}
-            >
-                {({handleChange, handleBlur, handleSubmit, values, errors, touched})=>(
-                    <KeyboardAvoidingView
-                        behavior={Platform.OS === "ios" ? "height": "height"}
-                        style = {{flex: 1}}
-                    >
-                        
-                        <View style = {{width: "100%", height: "100%", display: "flex", justifyContent:"center"}}>
-                            <View style = {!isDesktop ? styles.box : styles.desktopBox}>
-                                <View style = {styles.header}>
-                                    <Text variant='displaySmall'>Criar conta</Text>
-                                    <Text>Olá! Bem-vindo</Text>
+        <SafeAreaView style = {{flex: 1}}>
+            <View style = {{...styles.container}}>
+                <Formik
+                    initialValues={{
+                        name: "",
+                        phone: "",
+                        email: "", 
+                        password: ""
+                    }}
+                    validate={validate}
+                    onSubmit = {signUp}
+                >
+                    {({handleChange, handleBlur, handleSubmit, values, errors, touched})=>(
+                        <KeyboardAvoidingView
+                            behavior={Platform.OS === "ios" ? "height": "height"}
+                            style = {{flex: 1}}
+                        >
+                            
+                            <View style = {{width: "100%", height: "100%", display: "flex", justifyContent:"center"}}>
+                                <View style = {!isDesktop ? styles.box : styles.desktopBox}>
+                                    <View style = {styles.header}>
+                                        <Text variant='displaySmall'>Criar conta</Text>
+                                        <Text>Olá! Bem-vindo</Text>
+                                    </View>
+                                    <Text style = {{color: colors.text, marginBottom: 5}}>Nome Completo</Text>
+                                    <Input
+                                        left={<AntDesign size = {24} name = 'user'/>}
+                                        placeholder = "Nome"
+                                        onChangeText = {handleChange("name")}
+                                        onBlur = {handleBlur("name")}/>
+                                    {touched.name && errors.name && (
+                                        <Text style={styles.textError}>{errors.name}</Text>
+                                    )}
+
+                                    <Text style = {{color: colors.text, marginTop: 5, marginBottom: 5}}>Telefone</Text>
+                                        <Input
+                                        left={<AntDesign size = {24} name = 'phone'/>}
+                                        placeholder = "+244"
+                                        keyboardType = 'numeric'   
+                                        onChangeText = {handleChange("phone")}
+                                        onBlur = {handleBlur("phone")}/>
+                                    {touched.phone && errors.phone && (
+                                        <Text style={styles.textError}>{errors.phone}</Text>
+                                    )}
+
+                                    <Text style = {{color: colors.text, marginTop: 5, marginBottom: 5}}>E-mail (Opcional)</Text>
+                                        <Input
+                                        left={<Entypo size = {24} name = 'email'/>}
+                                        placeholder = "exemplo@dominio.com"
+                                        onChangeText = {handleChange("email")}
+                                        onBlur = {handleBlur("email")}/>
+                                    {touched.email && errors.email && (
+                                        <Text style={styles.textError}>{errors.email}</Text>
+                                    )}
+
+                                    <Text style = {{color: colors.text, marginTop: 5, marginBottom: 5}}>Palavra-Passe</Text>
+                                    <Input
+                                        left={<AntDesign size = {24} name = 'lock'/>}
+                                        placeholder = " Senha de Segurança"
+                                        onChangeText = {handleChange("password")}   
+                                        onBlur = {handleBlur("password")}
+                                        secureTextEntry = {!passVisible}
+                                        right={
+                                            <TouchableOpacity onPress={handlePassVisible}>
+                                                <Feather size={24} name ={!passVisible ? "eye":"eye-off"}/>
+                                            </TouchableOpacity>
+                                        }/>
+                                        {touched.password && errors.password && (
+                                        <Text style={styles.textError}>{errors.password}</Text>
+                                    )}
+
+                                    <List.Item
+                                        left={() => (
+                                            <Checkbox
+                                                status={checked ? 'checked': 'unchecked'}
+                                                onPress={handleCheck}
+                                            />
+                                        )}
+                                        style = {{marginTop: 10}}
+                                        onPress={handleCheck}
+                                        title = {
+                                            () => (
+                                                <Text style={{ color: '#333333', display: "flex", justifyContent: "center", alignItems: "center" }}>
+                                                    Ao clicar em 'Criar Conta', estou confirmando que li e concordo com os termos da 
+                                                    <TouchableOpacity onPress={() => navigation.navigate("LocalBrowser", {urlAddress: policy_privacy})}>
+                                                        <Text style={{ color: colors.blue, textDecorationLine: 'underline' }}>política de privacidade</Text>
+                                                    </TouchableOpacity>
+                                                </Text>
+                                            )
+                                        }
+                                        titleNumberOfLines={3}
+                                    /> 
+                                    
+                                    
+                                    <View style = {styles.footer}>
+                                        <PaperButton 
+                                            onPress={()=>navigation.goBack()}
+                                            mode='outlined'>Voltar</PaperButton>
+                                        <PaperButton 
+                                            onPress={handleSubmit}
+                                            disabled = {!checked}
+                                            mode='contained'>Criar Conta</PaperButton>
+                                    </View>
                                 </View>
-                                <Text style = {{color: colors.text, marginBottom: 5}}>Nome Completo</Text>
-                                <Input
-                                    left={<AntDesign size = {24} name = 'user'/>}
-                                    placeholder = "Nome"
-                                    onChangeText = {handleChange("name")}
-                                    onBlur = {handleBlur("name")}/>
-                                {touched.name && errors.name && (
-                                    <Text style={styles.textError}>{errors.name}</Text>
-                                )}
 
-                                <Text style = {{color: colors.text, marginTop: 5, marginBottom: 5}}>Telefone</Text>
-                                 <Input
-                                    left={<AntDesign size = {24} name = 'phone'/>}
-                                    placeholder = "+244"
-                                    keyboardType = 'numeric'   
-                                    onChangeText = {handleChange("phone")}
-                                    onBlur = {handleBlur("phone")}/>
-                                {touched.phone && errors.phone && (
-                                    <Text style={styles.textError}>{errors.phone}</Text>
-                                )}
-
-                                <Text style = {{color: colors.text, marginTop: 5, marginBottom: 5}}>E-mail (Opcional)</Text>
-                                 <Input
-                                    left={<Entypo size = {24} name = 'email'/>}
-                                    placeholder = "exemplo@dominio.com"
-                                    onChangeText = {handleChange("email")}
-                                    onBlur = {handleBlur("email")}/>
-                                {touched.email && errors.email && (
-                                    <Text style={styles.textError}>{errors.email}</Text>
-                                )}
-
-                                <Text style = {{color: colors.text, marginTop: 5, marginBottom: 5}}>Palavra-Passe</Text>
-                                <Input
-                                    left={<AntDesign size = {24} name = 'lock'/>}
-                                    placeholder = " Senha de Segurança"
-                                    onChangeText = {handleChange("password")}   
-                                    onBlur = {handleBlur("password")}
-                                    secureTextEntry = {!passVisible}
-                                    right={
-                                        <TouchableOpacity onPress={handlePassVisible}>
-                                            <Feather size={24} name ={!passVisible ? "eye":"eye-off"}/>
-                                        </TouchableOpacity>
-                                    }/>
-                                 {touched.password && errors.password && (
-                                    <Text style={styles.textError}>{errors.password}</Text>
-                                )}
-                                
-                                
-                                <View style = {styles.footer}>
-                                    <PaperButton 
-                                        onPress={()=>navigation.goBack()}
-                                        mode='outlined'>Voltar</PaperButton>
-                                    <PaperButton 
-                                        onPress={handleSubmit}
-                                        mode='contained'>Criar Conta</PaperButton>
-                                </View>
                             </View>
-
-                        </View>
-                    </KeyboardAvoidingView>
-                )}
-            </Formik>
+                        </KeyboardAvoidingView>
+                    )}
+                </Formik>
+            </View>
             <TockAlert value = {dialog} onDismiss ={()=>{setDialog({visible: false})}}/>
 
-        </View>
+        </SafeAreaView>
     )
 }
 

@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import {View, StyleSheet} from 'react-native';
-import { Button, Text } from 'react-native-paper';
+import { Button, Text, useTheme } from 'react-native-paper';
 import { TockStyles } from '../tockElements/TockStyles';
 import { AntDesign } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -10,6 +10,7 @@ const RequireAuth = () => {
 
     const {isDesktop} = useContext(Context)
     const navigation = useNavigation();
+    const {colors} = useTheme()
 
     return (
         <View style = {TockStyles.containerCenter}>
@@ -18,7 +19,7 @@ const RequireAuth = () => {
                     <AntDesign color={"gray"} size={70} name = "user" />
                 </View>
 
-                <Text style = {styles.text}>Para acessar essa funcionalidade, por favor, inicie sessão na sua conta.</Text>
+                <Text style = {{...styles.text, color: colors.textGray}}>Para acessar essa funcionalidade, por favor, inicie sessão na sua conta.</Text>
 
                 <Button 
                     style = {TockStyles.materialButton} 

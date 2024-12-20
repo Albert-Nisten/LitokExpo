@@ -74,109 +74,104 @@ const Search = ({navigation}) => {
 
 
     return (
-        <View>
-            {/* <View style = {styles.header}>
-                
-                 <View>
-                    <Button onPress={() => searchItem(input)}>Pesquisar</Button>
-                </View> 
-            </View> */}
+        <View style={{ flex: 1 }}>
+            {/* Search Header */}
             <View style={styles.search}>
                 <View style={{ padding: 5 }}>
                     <TouchableOpacity 
                         onPress={() => navigation.goBack()} 
                         accessible={true} 
                         accessibilityLabel="Voltar">
-                        <Ionicons size={24} name='arrow-back' color="#333" />
+                        <Ionicons size={30} name="arrow-back" color="#333" />
                     </TouchableOpacity>
                 </View>
                 <NativeInput
                     value={input}
                     onChangeText={(e) => setInput(e)}
-                    placeholder="O que está procurando ?"
+                    placeholder="O que está procurando?"
                     placeholderTextColor="#666"
                     style={styles.input}
-                    returnKeyType='search'
+                    returnKeyType="search"
                     onFocus={() => setIsInputFocus(true)}
                     onBlur={() => setIsInputFocus(false)}
                     onSubmitEditing={() => searchItem(input)}
                 />
                 <View>
                     <IconButton
-                        icon={() => <Ionicons size={40} name='search-circle' color={colors.primary} />}
+                        icon={() => <Ionicons size={40} name="search-circle" color={colors.primary} />}
                         accessible={true}
                         accessibilityLabel="Pesquisar"
                         onPress={() => searchItem(input)}
                     />
                 </View>
             </View>
-
-            
+        
+            {/* Conditional Rendering */}
             {notFound && !isInputFocus ? (
-                <View style = {{height: "80%", display: "flex", justifyContent: "center", alignItems: "center"}}>
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 10 }}>
                     <MaterialIcons name="search-off" size={50} color="gray" />
-                    <Text style = {{color: "gray"}} variant='titleSmall'>Nenhum Resultado Encontrado</Text>
-                    <Text style = {{color: "gray", textAlign: "center", fontSize: 12}}>Tente ajustar sua busca. Use palavras diferentes ou verifique a ortografia</Text>
+                    <Text style={{ color: colors.textGray }} variant="titleSmall">Nenhum Resultado Encontrado</Text>
+                    <Text style={{ color: colors.textGray, textAlign: "center", fontSize: 12 }}>
+                        Tente ajustar sua busca. Use palavras diferentes ou verifique a ortografia.
+                    </Text>
                 </View>
-            ):(
-               <>
+            ) : (
+                <>
                     {(sugestions.length === 0 && items.length === 0 && !isInputFocus) ? (
-                        <View style = {{height: "80%", display: "flex", justifyContent: "center", alignItems: "center"}}>
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 10 }}>
                             <AntDesign name="search1" size={50} color="gray" />
-                            <Text style = {{color: "gray"}} variant='titleSmall'>Pesquise Produtos</Text>
-                            <Text style = {{color: "gray", textAlign: "center", fontSize: 12}}>Encontre o que você procura de maneira rápida e fácil. Use palavras-chave específicas para obter os melhores resultados</Text>
+                            <Text style={{ color: colors.textGray }} variant="titleSmall">Pesquise Produtos</Text>
+                            <Text style={{ color: colors.textGray, textAlign: "center", fontSize: 12 }}>
+                                Encontre o que você procura de maneira rápida e fácil. Use palavras-chave específicas para obter os melhores resultados.
+                            </Text>
                         </View>
-                    ):(
-                        <SafeAreaView style = {items.length > 0 && styles.container}>
+                    ) : (
+                        <SafeAreaView style={{ flex: 1 }}>
                             <ScrollView>
-                                {/* sugestions found */}
+                                {/* Suggestions */}
                                 <View>
                                     {sugestions.length > 0 && (
                                         <List.Section>
-                                        {sugestions.map((data, key) => (
-                                            <List.Item onPress={()=>searchItem(data.name)} key = {key} title = {data.name}/>
-                                        ))}
+                                            {sugestions.map((data, key) => (
+                                                <List.Item onPress={() => searchItem(data.name)} key={key} title={data.name} />
+                                            ))}
                                         </List.Section>
                                     )}
                                 </View>
-                                {/* items found */}
-                                <View style = {styles.row}>
+        
+                                {/* Items */}
+                                <View style={styles.row}>
                                     {items.length > 0 && items.map((item, key) => (
                                         <Card
-                                            onPress={() => navigation.navigate("ProductDetail", {item})}
-                                            key = {item.id} 
-                                            size = {100}
+                                            onPress={() => navigation.navigate("ProductDetail", { item })}
+                                            key={item.id} 
                                             elevation={0}
-                                            style = {{...styles.card, backgroundColor: colors.card,}}
+                                            style={{ ...styles.card, backgroundColor: colors.card }}
                                         >
                                             <Card.Title
-                                                title = {<Text variant='titleSmall'>{item.name}</Text>}
-                                                titleStyle = {{textAlign: "center"}}
+                                                title={<Text variant="titleSmall">{item.name}</Text>}
+                                                titleStyle={{ textAlign: "center" }}
                                             />
                                             <Card.Cover 
-                                                style = {{height: 150, objectFit: "contain"}} 
-                                                source={{uri: url+"/"+item.avatar}}
+                                                style={{ height: 150, objectFit: "contain" }} 
+                                                source={{ uri: `${url}/${item.avatar}` }}
                                             />
                                             <Card.Content>
-                                                <Text variant='titleSmall'>{formatToKwanza(item.price)}</Text>
-                                                <Text style = {{color: "gray", fontSize: 11}}>
-                                                    {item.description.length < 24 ? item.description : item.description.substring(0, 24)+"..."}
+                                                <Text variant="titleSmall">{formatToKwanza(item.price)}</Text>
+                                                <Text style={{ color: colors.textGray, fontSize: 11 }}>
+                                                    {item.description.length < 24 ? item.description : `${item.description.substring(0, 24)}...`}
                                                 </Text>
                                             </Card.Content>
-                                    </Card>
+                                        </Card>
                                     ))}
                                 </View>
                             </ScrollView>
                         </SafeAreaView>
                     )}
-               </>
+                </>
             )}
-
-            
-
-          
-
         </View>
+    
     );
 }
 
@@ -202,7 +197,7 @@ const styles = StyleSheet.create({
         color: "#333", // Texto visível e com bom contraste
         paddingHorizontal: 10,
         borderRadius: 5,
-        height: 40,
+        height: 48,
     },
     
     row: {

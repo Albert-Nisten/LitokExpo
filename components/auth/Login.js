@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react"
-import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native"
+import { Image, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native"
 import { useTheme, Text, Button as PaperButton} from "react-native-paper"
 import TockAlert from "../tockElements/TockAlert"
 import { Formik } from "formik"
@@ -94,82 +94,87 @@ const Login = ({navigation}) => {
     }, [])
 
     return(
-            <Formik
-                initialValues={{email: "", password: ""}}
-                validate={validate}
-                onSubmit = {localLogin}
-            >
-                {({handleChange, handleBlur, handleSubmit, values, errors, touched})=>(
-                    <KeyboardAvoidingView
-                        behavior={Platform.OS === "ios" ? "padding": "height"}
-                        style = {{flex: 1}}
-                    >
-                        <ScrollView contentContainerStyle = {{width:"100%", height: "100%"}}>
-                            <View style = {{...TockStyles.containerCenter}}>
-                                <View style = {!isDesktop ? styles.box: styles.desktopBox}>
-                                    <View style = {styles.header}>
-                                        <Text variant='displaySmall'>Login</Text>
-                                        <Text>Olá! Bem-vindo de Volta</Text>
-                                    </View>
-                                    <Text style = {{color: colors.text, marginBottom: 5}}>Email ou Telefone</Text>
-                                    <Input
-                                        left={<AntDesign size = {24} name = 'phone'/>}
-                                        placeholder = "Ultilizador"
-                                        onChangeText = {handleChange("email")}
-                                        onBlur = {handleBlur("email")}/>
-                                    {touched.email && errors.email && (
-                                        <Text style={styles.textError}>{errors.email}</Text>
-                                    )}
-                                    <Text style = {{color: colors.text, marginTop: 5, marginBottom: 5}}>Palavra-Passe</Text>
-                                    <Input
-                                        left={<AntDesign size = {24} name = 'lock'/>}
-                                        placeholder = "Senha de Segurança"
-                                        onChangeText = {handleChange("password")} 
-                                        returnKeyType='go'
-                                        onBlur = {handleBlur("password")}
-                                        onSubmitEditing={handleSubmit}
-                                        secureTextEntry = {!passVisible}
-                                        right={
-                                            <TouchableOpacity onPress={handlePassVisible}>
-                                                <Feather size={24} name ={!passVisible ? "eye":"eye-off"}/>
-                                            </TouchableOpacity>
-                                        }/>
-                                    {touched.password && errors.password && (
-                                        <Text style={styles.textError}>{errors.password}</Text>
-                                    )}
-                                    
-                                    <Button 
-                                        onPress = {handleSubmit}
-                                        style = {{marginTop: 10}}
-                                        title = "Iniciar Sessão"/>
+           <SafeAreaView style = {{flex: 1}}>
+                <Formik
+                    initialValues={{email: "", password: ""}}
+                    validate={validate}
+                    onSubmit = {localLogin}
+                >
+                    {({handleChange, handleBlur, handleSubmit, values, errors, touched})=>(
+                        <KeyboardAvoidingView
+                            behavior={Platform.OS === "ios" ? "padding": "height"}
+                            style = {{flex: 1}}
+                        >
+                            <ScrollView contentContainerStyle = {{width:"100%", height: "100%"}}>
+                                <View style = {{...TockStyles.containerCenter}}>
+                                    <View style = {!isDesktop ? styles.box: styles.desktopBox}>
+                                        <View style = {styles.header}>
+                                            <Text variant='displaySmall'>Login</Text>
+                                            <Text>Olá! Bem-vindo de Volta</Text>
+                                        </View>
+                                        <Text style = {{color: colors.text, marginBottom: 5}}>Email ou Telefone</Text>
+                                        <Input
+                                            left={<AntDesign size = {24} name = 'phone'/>}
+                                            placeholder = "Ultilizador"
+                                            onChangeText = {handleChange("email")}
+                                            onBlur = {handleBlur("email")}/>
+                                        {touched.email && errors.email && (
+                                            <Text style={styles.textError}>{errors.email}</Text>
+                                        )}
+                                        <Text style = {{color: colors.text, marginTop: 5, marginBottom: 5}}>Palavra-Passe</Text>
+                                        <Input
+                                            left={<AntDesign size = {24} name = 'lock'/>}
+                                            placeholder = "Senha de Segurança"
+                                            onChangeText = {handleChange("password")} 
+                                            returnKeyType='go'
+                                            onBlur = {handleBlur("password")}
+                                            onSubmitEditing={handleSubmit}
+                                            secureTextEntry = {!passVisible}
+                                            right={
+                                                <TouchableOpacity onPress={handlePassVisible}>
+                                                    <Feather size={28} name ={!passVisible ? "eye":"eye-off"}/>
+                                                </TouchableOpacity>
+                                            }/>
+                                        {touched.password && errors.password && (
+                                            <Text style={styles.textError}>{errors.password}</Text>
+                                        )}
+                                        
+                                        <Button 
+                                            onPress = {handleSubmit}
+                                            style = {{marginTop: 10}}
+                                            title = "Iniciar Sessão"
+                                        />
 
+                                        
+                                        {/* <View style = {{display: "flex", flexDirection: "row", justifyContent: "space-between", gap: 2}}>
+                                            <SocialIconButton
+                                                icon = {<Image style = {{width: 24, height: 24}} source={require("../dist/img/icons/google.png")} />}
+                                                style = {{...styles.socialButton, width: "50%"}}
+                                                onPress = {() => {promptAsync()}}
+                                            >Google</SocialIconButton>
+                                        
+                                            <SocialIconButton
+                                                icon = {<Image style = {{width: 24, height: 24}} source={require("../dist/img/icons/facebook.png")} />}
+                                                style ={{width: "50%", ...styles.socialButton}}
+                                            >Facebook</SocialIconButton>
+                                        </View> */}
                                     
-                                    {/* <View style = {{display: "flex", flexDirection: "row", justifyContent: "space-between", gap: 2}}>
-                                        <SocialIconButton
-                                            icon = {<Image style = {{width: 24, height: 24}} source={require("../dist/img/icons/google.png")} />}
-                                            style = {{...styles.socialButton, width: "50%"}}
-                                            onPress = {() => {promptAsync()}}
-                                        >Google</SocialIconButton>
-                                    
-                                        <SocialIconButton
-                                            icon = {<Image style = {{width: 24, height: 24}} source={require("../dist/img/icons/facebook.png")} />}
-                                            style ={{width: "50%", ...styles.socialButton}}
-                                        >Facebook</SocialIconButton>
-                                    </View> */}
-                                
-                                    <View style = {styles.footer}>
-                                        <Text style = {{color: "gray"}}>Não tem uma conta?</Text>
-                                        <PaperButton textColor={colors.blue} onPress={()=>navigation.navigate("Register")}>Criar Conta</PaperButton>
-                                    </View>
+                                        <View style = {styles.footer}>
+                                            <Text style = {{color: colors.textGray}}>Não tem uma conta?</Text>
+                                            <PaperButton textColor={colors.blue} onPress={()=>navigation.navigate("Register")}>Criar Conta</PaperButton>
+                                        </View>
 
-            
+                
+                                    </View>
                                 </View>
-                            </View>
-                        </ScrollView>
-                        <TockAlert value = {dialog} onDismiss ={()=>{setDialog({visible: false})}}/>
-                    </KeyboardAvoidingView>
-                )}
-            </Formik>
+                            </ScrollView>
+                        </KeyboardAvoidingView>
+                    )}
+                </Formik>
+
+                <TockAlert value = {dialog} onDismiss ={()=>{setDialog({visible: false})}}/>
+
+           </SafeAreaView>
     )
 }
 

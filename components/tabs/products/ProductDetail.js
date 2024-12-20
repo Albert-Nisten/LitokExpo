@@ -29,9 +29,11 @@ const ProductDetail = ({route, navigation}) => {
             headerRight:()=> (
                <>
                 <IconButton 
-                    mode = 'contained'
+                    mode = {liked ? "contained" : 'outlined'}
                     size={30}
-                    style = {{backgroundColor: colors.card}}
+                    style = {{backgroundColor: liked ? colors.primary : null, borderColor: colors.primary}}
+                    iconColor= {liked ? 'white' : colors.primary}
+                
                     icon={liked ? "heart" : "heart-outline"}
                     onPress={() => likeProduct(product.id)}
                 />
@@ -227,29 +229,35 @@ const ProductDetail = ({route, navigation}) => {
                         
                         </View>
                         <Divider />
-                        <List.Accordion title = "Detalhes">
+                        <List.Accordion title = {<Text>Detalhes do Produto</Text>}>
                             <List.Item
                                 title = "Marca:"
-                                right={() => <Text>{product.brand}</Text>}
+                                titleStyle = {{color: colors.textGray}}
+                                right={() => <Text style = {{color: colors.textGray}}>{product.brand}</Text>}
                             />
                             <List.Item
                                 title = "Estado:"
-                                right={() => <Text>{product.condition === "used" ? "Usado":"Novo"}</Text>}
+                                titleStyle = {{color: colors.textGray}}
+                                right={() => <Text style = {{color: colors.textGray}}>{product.condition === "used" ? "Usado":"Novo"}</Text>}
                             />
                             <List.Item
                                 title = "Dimensões:"
-                                right={() => <Text>{product.dimensions}</Text>}
+                                titleStyle = {{color: colors.textGray}}
+                                right={() => <Text style = {{color: colors.textGray}}>{product.dimensions}</Text>}
                             />
                             <List.Item
                                 title = "Tamanho:"
-                                right={() => <Text>{product.size}</Text>}
+                                titleStyle = {{color: colors.textGray}}
+                                right={() => <Text style = {{color: colors.textGray}}>{product.size}</Text>}
                             />
                             <List.Item
                                 title = "Peso (kg):"
-                                right={() => <Text>{product.weight}</Text>}
+                                titleStyle = {{color: colors.textGray}}
+                                right={() => <Text style = {{color: colors.textGray}}>{product.weight}</Text>}
                             />
                              <List.Item
                                 title = "Preço:"
+                                titleStyle = {{color: colors.textGray}}
                                 right={() => <Text>{formatToKwanza(product.price)}</Text>}
                             />
                         </List.Accordion>
@@ -257,9 +265,12 @@ const ProductDetail = ({route, navigation}) => {
                         <List.Accordion
                             // left={() => <AntDesign color={colors.text} size={24} name='check'/>}
                             title = {<Text>Condições de Venda</Text>}
-                            style = {{padding: 10}}
+                            // style = {{padding: 10}}
                         >
-                            <List.Item title = {product.sales_conditions} titleNumberOfLines={null}/>
+                            <List.Item 
+                                title = {product.sales_conditions} titleNumberOfLines={null}
+                                titleStyle = {{color: colors.textGray}}
+                            />
                         </List.Accordion>
                     </List.Section>
                 </View>

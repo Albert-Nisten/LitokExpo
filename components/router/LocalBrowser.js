@@ -4,7 +4,7 @@ import { WebView } from 'react-native-webview'
 import Loading from './Loading';
 import Network from './Network';
 
-const PolicyPrivacity = ({route}) => {  
+const LocalBrowser = ({route}) => {  
 
     const { urlAddress } = route.params
 
@@ -36,4 +36,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default PolicyPrivacity;
+export default LocalBrowser;

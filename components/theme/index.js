@@ -24,7 +24,10 @@ const light = {
         blue: DefaultTheme.colors.primary,
         error: '#770303', 
         success: '#388E3C',
-        snack: DarkTheme.colors.card
+        snack: DarkTheme.colors.card,
+        textGray: "#333333",
+        inputGray: "#f5f5f5",
+        placeholder: "#666"
     },
     roundness: 2,
 }
@@ -49,7 +52,10 @@ const dark = {
         blue: DefaultTheme.colors.primary,
         error: '#770303', 
         success: '#388E3C', 
-        snack: DefaultTheme.colors.card
+        snack: DefaultTheme.colors.card,
+        textGray: "gray",
+        inputGray: "#f5f5f5",
+        placeholder: "#666"
     },
     roundness: 2,
 }

@@ -54,7 +54,7 @@ const Favorite = ({navigation}) => {
     if(networkError) return <Network event = {() => {getFavorites(); setNetworkError(false)}}/>
 
     return (
-        <SafeAreaView>
+        <SafeAreaView style = {{flex: 1, padding: 10}}>
             <ScrollView
                 style = {styles.scroll}
                 showsVerticalScrollIndicator = {false}

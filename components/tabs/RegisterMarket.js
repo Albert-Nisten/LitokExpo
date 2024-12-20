@@ -173,9 +173,10 @@ const RegisterMarket = () => {
                         <Card.Content>
                     
                             <Text style = {{color: colors.primary, marginBottom: 5, marginTop: 10}}>Nome da Loja</Text>
-                            <TextInput
+                            <Input
                                 value = {name}
                                 onChangeText = {e => setName(e)}
+                                placeholder = "Digite o nome da sua loja"
                                 ref = {inputRef}
                             />
                             <Text style = {{color: "gray", marginBottom: 5}}>Informe o nome da sua loja. Este será o nome visível aos seus clientes.</Text>
@@ -183,7 +184,7 @@ const RegisterMarket = () => {
 
                             <Text style = {{color: colors.primary}} variant='titleSmall'>Envio do Documento de Identidade</Text>
 
-                            <View style = {{ width: "100%", height: 150, backgroundColor: "#f2f2f2", borderRadius: 10, marginTop: 10, marginBottom: 5 }}>
+                            <View style = {{ width: "100%", height: 150, backgroundColor: colors.inputGray, borderRadius: 10, marginTop: 10, marginBottom: 5 }}>
                                 {!documentFront ? (
                                     <TouchableOpacity 
                                     style = {{width: "100%", height: "100%", display: "flex", justifyContent: "center", padding: 10, alignItems: "center",}} 
@@ -208,7 +209,7 @@ const RegisterMarket = () => {
                             </View>
                             {documentFront && <Button textColor={colors.error} onPress={() => removePick({type: "document_front"})}>Remover Imagem</Button>}
 
-                            <View style = {{ width: "100%", height: 150, backgroundColor: "#f2f2f2", borderRadius: 10, marginTop: 10, marginBottom: 5 }}>
+                            <View style = {{ width: "100%", height: 150, backgroundColor: colors.inputGray, borderRadius: 10, marginTop: 10, marginBottom: 5 }}>
                                {!documentBack ? (
                                     <TouchableOpacity 
                                         style = {{width: "100%", height: "100%", display: "flex", justifyContent: "center", padding: 10, alignItems: "center",}} 
@@ -237,7 +238,7 @@ const RegisterMarket = () => {
                             <Text style = {{color: colors.primary, marginTop: 10}} variant='titleSmall'>Foto com Documento em Mãos</Text>
                             <Text style = {{color: "gray", textAlign: "justify"}}>Tire uma foto sua segurando o documento de identidade (frente) para confirmar sua identidade.</Text>
 
-                            <View style = {{ width: "100%", height: 300, backgroundColor: "#f2f2f2", borderRadius: 10, marginTop: 10}}>
+                            <View style = {{ width: "100%", height: 300, backgroundColor: colors.inputGray, borderRadius: 10, marginTop: 10}}>
                                 {!selfie ? (
                                     <TouchableOpacity 
                                         style = {{width: "100%", height: "100%", display: "flex", justifyContent: "center", padding: 10, alignItems: "center",}} 

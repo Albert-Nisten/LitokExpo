@@ -147,7 +147,7 @@ const UserAddress = ({navigation}) => {
        <SafeAreaView style = {{flex: 1}}>
             <ScrollView>
                 <View style = {{padding: 10}}>
-                    <Text style = {{color: "gray", marginBottom: 3}}>País</Text>
+                    <Text style = {{color: colors.textGray, marginBottom: 3}}>País</Text>
                     <Surface style = {{borderRadius: 5}} mode='flat'>
                         <View style = {styles.selectContainer}>
                             <Picker
@@ -166,7 +166,7 @@ const UserAddress = ({navigation}) => {
                             </Picker>
                         </View>
                     </Surface>
-                    <Text style = {{color: "gray", marginBottom: 3}}>Província</Text>
+                    <Text style = {{color: colors.textGray, marginBottom: 3}}>Província</Text>
                     <Surface style = {{borderRadius: 5}} mode='flat'>
                         <View style = {styles.selectContainer}>
                             <Picker
@@ -184,7 +184,7 @@ const UserAddress = ({navigation}) => {
                             </Picker>
                         </View>
                     </Surface>
-                    <Text style = {{color: "gray", marginBottom: 3}}>Município</Text>
+                    <Text style = {{color: colors.textGray, marginBottom: 3}}>Município</Text>
                     <Surface style = {{borderRadius: 5}} mode='flat'>
                         <View style = {styles.selectContainer}>
                             <Picker
@@ -201,7 +201,7 @@ const UserAddress = ({navigation}) => {
                             </Picker>
                         </View>
                     </Surface>
-                    <Text style = {{color: "gray", marginBottom: 3}}>Digite seu endereço completo e um ponto de referência para facilitar a localização.</Text>
+                    <Text style = {{color: colors.textGray, marginBottom: 3}}>Digite seu endereço completo e um ponto de referência para facilitar a localização.</Text>
                     <TextInput
                     mode='outlined'
                     dense = {true}
@@ -211,13 +211,14 @@ const UserAddress = ({navigation}) => {
                     value={addressDetail}
                     onChangeText={text => setAddressDetail(text)}
                     />
-                    <Button 
-                        mode='contained'
-                        onPress={saveAddress} 
-                        style = {{marginTop: 10}}
-                    >Guardar</Button>
+                   
                 </View>
             </ScrollView>
+             <Button 
+                mode='contained'
+                onPress={saveAddress} 
+                style = {{margin: 10}}
+            >Salvar Endereço</Button>
             <TockAlert value = {dialog} onDismiss={() => setDialog({visible: false})}/>
        </SafeAreaView>
     );
@@ -234,7 +235,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
       },
       picker: {
-        height: 40
+        height: 40,
       },
       pickerItem: {
         height: 44,

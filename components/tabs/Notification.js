@@ -53,6 +53,7 @@ const Notification = ({navigation}) => {
     }   
 
     useEffect(() => {
+      if(user){
         if(notifications.length === 0){
             getUserNotifications()
         }
@@ -64,6 +65,7 @@ const Notification = ({navigation}) => {
         return () => {
             socket.off("new_notification")
         }
+      }
     }, [])
 
 
